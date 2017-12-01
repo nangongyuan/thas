@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuan.dao.UserInfoDao">
+   <select id="getUserInfo" resultType="UserInfo">
+       select UserId,UnitId,Name,UserType,UserName,Password,Memo from UserInfo where 1!=2
+       <if test="map.userId!=null">and UserId=#{map.userId}</if>
+       <if test="map.unitId!=null">and UnitId=#{map.unitId}</if>
+       <if test="map.userName!=null">and UserName=#{map.userName}</if>
+       <if test="map.userType!=null">and UserType=#{map.userType}</if>
+       ORDER by UserType
+   </select>
+    <select id="getShowUserResult" resultType="com.yuan.dto.ShowUserResult">
+        select UserId,UnitId,Name,UserType,UserName,Memo from UserInfo where 1!=2
+        <if test="map.userId!=null">and UserId=#{map.userId}</if>
+        <if test="map.unitId!=null">and UnitId=#{map.unitId}</if>
+        <if test="map.userName!=null">and UserName=#{map.userName}</if>
+        <if test="map.userType!=null">and UserType=#{map.userType}</if>
+    </select>
+    <select id="getShowUser" resultType="com.yuan.dto.ShowUserResult">
+        select u.UserId,u.Name,u.UserType,ut.Title,u.Memo from unit as ut,UserInfo as u where u.UnitId=ut.UnitId
+    </select>
+    <select id="getUserBygetwayId" resultType="com.yuan.dto.ShowUserResult">
+        select u.UserId,u.Name,u.UserType,u.Memo from UserAuthor as ua,UserInfo as u,node
+        where node.GetwayId=#{getwayId} and node.NodeId=ua.NodeId and ua.UserId=u.UserId and u.UserType=3
+    </select>
+    <insert id="addUser" parameterType="com.yuan.entity.UserInfo">
+        insert into UserInfo(UnitId,Name,UserType,UserName,Password,Memo) values (#{unitId},#{name},
+        #{userType},#{userName},#{password},#{memo})
+    </insert>
+    <delete id="deleteUser">
+        delete from UserInfo where UserId=#{userId}
+    </delete>
+    <update id="updateUser" parameterType="UserInfo">
+        update UserInfo set UnitId=#{unitId},Name=#{name},UserType=#{userType},UserName=#{userName},Password=#{password},
+        Memo=#{memo} where UserId=#{userId}
+    </update>
+</mapper>

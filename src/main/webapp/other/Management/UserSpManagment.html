@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    
+        <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+        <title>用户审批管理</title>
+
+</head>
+<body style="overflow-x:hidden;overflow-y:hidden;">
+        <table id="userSpManagement"></table>  
+        
+        <script type="text/javascript">  
+            $(function () {  
+                $('#userSpManagement').datagrid({  
+                    url: '',  
+                    width: 1460,  
+                    title: '用户审批管理',  
+                    method: 'get',  
+                    toolbar: '#tb',  
+                    columns: [[  
+                        { field: 'UserName', title: '用户名称', width: 150},  
+                        { field: 'name', title: '姓名', width: 150},  
+                        { field: 'Point id', title: '申请节点ID', width: 150 },  
+                        { field: 'state', title: '节点状态', width: 150 },  
+                        { field: 'type', title: '审批', width: 150 },  
+                    ]],  
+                    pagination: true,  
+                    pageSize:10,  
+                    pageList: [1, 2, 10, 20],  
+                })  
+            })
+        </script>
+
+
+</body>
+</html>

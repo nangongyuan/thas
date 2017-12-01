@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>新导航栏</title>
+    <link rel="stylesheet" type="text/css" href="css/demo.css" charset="utf-8">
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/loading.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css">
+    <!-- 图标 -->
+
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        var userType = localStorage.getItem("usertype"); //0.系统管理员   1.单位管理员   2.特权管理员    3.普通用户
+        var userName = localStorage.getItem("userName");
+        var userUnitname = localStorage.getItem("userUnitname");
+
+        if (userType == '0') {
+            userType = '系统管理员';
+        } else if (userType == '1') {
+            userType = '单位管理员';
+        } else if (userType == '2') {
+            userType = '特权管理员';
+        } else {
+            userType = '普通用户';
+        }
+
+        function load() {
+            document.getElementById("username").innerHTML = userName;
+            document.getElementById("usertype").innerHTML = userType;
+            document.getElementById("userunit").innerHTML = userUnitname;
+
+            if (userType == "0") {
+                $("#Display").hide();
+                $("#Authorized").hide();
+                $("#UserSpManagment").hide();
+            } else if (userType == "3") {
+                $("#Maintenance").hide();
+                $("#Getwayrent").hide();
+                $("#Authorized").hide();
+                $("#systemManagement").hide();
+                $("#systemManagementM").hide();
+            }
+        }
+
+        function Out() {
+            $.ajax({
+                url: '/user/exit',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (json) {
+                    userType = '0';
+                    alert("退出成功");
+                    location.href = "../index.html";
+                },
+                error: function () {}
+            });
+
+        }
+    </script>
+</head>
+
+<body onload="load()" style="overflow-x:hidden;overflow-y:hidden;">
+
+    <div id="loading">
+        <div id="loading-center">
+            <div id="loading-center-absolute">
+                <div id="object"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-page" style="display:none" id="main">
+        <div class="left">
+            <div class="nav-back"></div>
+            <div class="nav">
+                <div class="on">主页</div>
+                <div>数据查询</div>
+                <div>网关节点管理</div>
+                <div id="systemManagement">系统管理</div>
+            </div>
+        </div>
+        <div class="right">
+            <div class="content">
+                <div class="con-ggh">
+                    <div class="zcinfo fl">
+                        <div class="list-group">
+
+                            <a href="#" class="list-group-item active">
+                                <span class="glyphicon glyphicon-user"></span>
+                                <span class="list-group-item-heading" id="username">
+                                    &nbsp;&nbsp;
+                                </span>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    您的权限
+                                </h4>
+                                <p class="list-group-item-text" id="usertype">
+
+                                </p>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    所在单位
+                                </h4>
+                                <p class="list-group-item-text" id="userunit">
+
+                                </p>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <h4 class="list-group-item-heading" align="right" onclick="Out()">
+                                    <img src="../img/1.png" width="20px" height="20px">
+                                </h4>
+                                <p class="list-group-item-text" id="userunit">
+
+                                </p>
+                            </a>
+                        </div>
+
+
+                    </div>
+
+                    <div class="ptpic-dl fr">
+                        <i class="fa fa-address-card-o" style="font-size:240px;color:rgb(255, 255, 255)"></i>
+                    </div>
+
+                </div>
+
+                <div class="con-ggh">
+                    <div class="zcinfo fl">
+                        <div class="b-intro">
+                            <span class="newdp">
+                                <a href="#" class="newa" onClick="window.open('../other/InformationSelect/PointHistoryWS.html','','height=800,width=1200,scrollbars=yes,status =yes')">节&nbsp;点&nbsp;历&nbsp;史&nbsp;温&nbsp;一&nbsp;湿&nbsp;度&nbsp;查&nbsp;询</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp">
+                                <a href="#" class="newa" onClick="window.open('../other/InformationSelect/PointWDline.html','','height=800,width=1200,scrollbars=yes,status =yes')">节&nbsp;点&nbsp;历&nbsp;史&nbsp;温&nbsp;度&nbsp;统&nbsp;计</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp">
+                                <a href="#" class="newa" onClick="window.open('../other/InformationSelect/PointSDline.html','','height=800,width=1200,scrollbars=yes,status =yes')">节&nbsp;点&nbsp;历&nbsp;史&nbsp;湿&nbsp;度&nbsp;统&nbsp;计</a>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="ptpic-dl fr">
+                        <i class="fa fa-bar-chart-o" style="font-size:240px;color:rgb(255, 255, 255)"></i>
+                    </div>
+
+
+                </div>
+
+                <div class="con-ggh">
+                    <div class="zcinfo fl">
+                        <div class="b-intro">
+                            <span class="newdp" id="Maintenance">
+                                <a href="#" class="newa" onClick="window.open('../other/GatewaynodeManagement/Maintenance.html','','height=800,width=1200,scrollbars=yes,status =yes')">网&nbsp;关&nbsp;一&nbsp;节&nbsp;点&nbsp;信&nbsp;息&nbsp;维&nbsp;护</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp" id="Display">
+                                <a href="#" class="newa" onClick="window.open('../other/GatewaynodeManagement/Display.html','','height=800,width=1200,scrollbars=yes,status =yes')">实&nbsp;时&nbsp;信&nbsp;息&nbsp;显&nbsp;示</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp" id="Authorized">
+                                <a href="#" class="newa" onClick="window.open('../other/GatewaynodeManagement/Authorized.html','','height=800,width=1200,scrollbars=yes,status =yes')">网&nbsp;关&nbsp;授&nbsp;权&nbsp;管&nbsp;理</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp" id="Getwayrent">
+                                <a href="#" class="newa" onClick="window.open('../other/GatewaynodeManagement/Getwayrent.html','','height=800,width=1200,scrollbars=yes,status =yes')">网&nbsp;关&nbsp;租&nbsp;凭&nbsp;管&nbsp;理</a>
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="ptpic-dl fr">
+                        <i class="fa fa-cogs" style="font-size:240px;color:rgb(255, 255, 255)"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="con-ggh" id="systemManagementM">
+                    <div class="zcinfo fl">
+                        <div class="b-intro">
+                            <span class="newdp" id="unitManagement">
+                                <a href="#" class="newa" onClick="window.open('../other/Management/unitManagement.html','','height=800,width=1200,scrollbars=yes,status =yes')">单&nbsp;位&nbsp;管&nbsp;理</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp" id="userManagement">
+                                <a href="#" class="newa" onClick="window.open('../other/Management/userManagement.html','','height=800,width=1200,scrollbars=yes,status =yes')">用&nbsp;户&nbsp;管&nbsp;理</a>
+                            </span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span calss="newdp">&nbsp;</span>
+                            <span class="newdp" id="BxInfManagent">
+                                <a href="#" class="newa" onClick="window.open('../other/Management/BxInfManagent.html','','height=800,width=1200,scrollbars=yes,status =yes')">报&nbsp;修&nbsp;信&nbsp;息&nbsp;管&nbsp;理</a>
+                            </span>
+
+                        </div>                                                                                          
+                        
+                    </div>
+
+                    <div class="ptpic-dl fr">
+                        <i class="fa fa-user-plus" style="font-size:240px;color:rgb(255, 255, 255)"></i>
+                    </div>
+
+                </div>
+
+                
+
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript">
+        $(".main-page .nav div").mouseenter(function () {
+            var $this = $(this);
+            var index = $this.index();
+        }).mouseleave(function () {
+            var $this = $(this);
+            var index = $this.index();
+        }).click(function () {
+            var $this = $(this);
+            var index = $this.index();
+            var l = -(index * 800);
+            $(".main-page .nav div").removeClass("on");
+            $(".main-page .nav div").eq(index).addClass("on");
+            $(".main-page .content .con-ggh:eq(0)").stop().animate({
+                "margin-top": l
+            }, 500);
+        });
+
+
+        $(function () {
+            $("#loading").fadeOut(500);
+            $("#main").show();
+        });
+    </script>
+
+</body>
+
+</html>

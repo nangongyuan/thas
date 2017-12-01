@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.dao.NodeDao">
+    <select id="getNodeByNodeNum" resultType="com.yuan.entity.Node">
+        select NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node where NodeNum=#{nodeNum}
+    </select>
+    <select id="getNodeByGetwayIdNodeNum" resultType="com.yuan.entity.Node">
+        select NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node where NodeNum=#{nodeNum} and GetwayId=#{getwayId}
+    </select>
+    <select id="getNodeByNodeMark" resultType="com.yuan.entity.Node">
+        select NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node where NodeMark=#{nodeMark}
+    </select>
+    <select id="isNodeNum" resultType="com.yuan.entity.Node">
+        select NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node where NodeNum=#{nodeNum} and GetwayId=#{getwayId}
+    </select>
+    <select id="getNodeByGetwayId" resultType="com.yuan.entity.Node">
+        select NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node where GetwayId=#{getwayId} and Type=1
+    </select>
+    <select id="getNodeByGetwayIdAndUserId" resultType="com.yuan.entity.Node">
+        select node.NodeId,NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo from node,UserAuthor where GetwayId=#{getwayId} and UserId=#{userId} and node.NodeMark=use_author.NodeId
+    </select>
+    <insert id="addNode" parameterType="com.yuan.entity.Node">
+        insert into node(NodeMark,GetwayId,SpareNode,NodeNum,Type,Status,NowTemper,Humidity,Memo) values (#{nodeMark},#{getwayId},#{spareNode},#{nodeNum},
+        #{type},#{status},#{temper},#{humidity},#{memo})
+    </insert>
+    <delete id="deleteNode">
+        delete from node where NodeId=#{nodeId}
+    </delete>
+    <update id="updateNode" parameterType="Node">
+        update node set NodeMark=#{nodeMark},GetwayId=#{getwayId},SpareNode=#{spareNode},NodeNum=#{nodeNum},Type=#{type},
+        Status=#{status},NowTemper=#{temper},Humidity=#{humidity},Memo=#{memo} where NodeId=#{nodeId}
+    </update>
+    <select id="getNodeIdByGetwayMark" resultType="Integer">
+        select NodeId from node where NodeMark=#{getwayMark}
+    </select>
+</mapper>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+    
+        <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+        <title>报修信息管理</title>
+        <script>
+                
+                function load(){
+                    
+                                    var json=new Array();
+                                    $.ajax({
+                                        url:'/query/getQueryGetway',
+                                        xhrFields: {
+                                            withCredentials: true
+                                        },
+                                        crossDomain: true,
+                                        success:function(json){
+                                            var select=document.getElementById('Nodemark'); 
+                                        
+                                        var a=0;var j=0;var b=0;
+                                            for(var i=0;i<json.length;i++){
+                                                    a=i+j+1;
+                                                    
+                                                    var str=json[i].getwayMark+"(网关)";
+                                                    select.add(new Option(str,json[i].getwayMark));
+                                                    
+                                                    for(j=1;j<json[i].queryNodeResultList.length+1;j++){    
+                                                        b=2*i+j+i+1;
+                                                        str="......"+json[i].queryNodeResultList[j-1].nodeMark+"(节点)";
+                                                        select.add(new Option(str,json[i].queryNodeResultList[j-1].nodeMark));
+                                                    }
+                                            j--;
+                                            }
+                                        },
+                                        error:function(){
+                                        }
+                                    });
+                                }
+
+
+                function Submit1(){
+                    var Nodemark = myform.Nodemark.value;
+                    var Falutdesc = myform.Falutdesc.value;
+                    var Person = myform.Person.value;
+                    var Phone = myform.Phone.value;              
+
+                        $.ajax({
+                            url:'/repair/addRepair',
+                            xhrFields: {
+                            withCredentials: true
+                            },
+                            crossDomain: true,
+                            async:false,
+                            dataType:"json",
+                            type:'post',
+                            data:{"nodeMark":Nodemark,"faultDesc":Falutdesc,"person":Person,"phone":Phone},
+                            success:function(json){
+                                var succeed = $.trim(json.succeed);
+                                   if(succeed=="true"){
+                                       alert("添加成功");
+                                   }else{
+                                       alert(json.msg);
+                                   }
+                            }
+                            
+                        })
+                    
+                        location.reload(true); //重新刷新页面
+                }
+
+        </script>
+
+</head>
+<body onload="load()" style="overflow-x:hidden;overflow-y:hidden;">
+
+        <div id="Add" closed='true' class="easyui-dialog" title="请输入添加信息" style="width:260px;height:350px;"   
+                data-options="iconCls:'none',resizable:true,modal:true">   
+            <form name="myform">
+            <br>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;节点ID</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select  id="Nodemark" style="width:150px">
+                    <option>请选择</option>
+            </select><br><br>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;联系人</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="Person"><br><br>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;电话</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="Phone"><br><br>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;故障描述</span><br><br><textarea id="Falutdesc" rows="4" style="width:200px;">
+            </textarea><br><br>
+                  
+                <button style="position:absolute;width:50px;height:30px;right:20px" onclick="Submit1()">提交</button>
+            
+            </form>
+                
+
+        </div>
+
+        <div id="bx" style="width:100%;height:800px">
+            <table id="BxInfManagement"></table>  
+        </div>
+
+        <script type="text/javascript">  
+            var userType = localStorage.getItem("usertype"); //3 单位管理员  1 系统管理员
+            
+            $(function () {  
+               
+                var datagrid=$('#BxInfManagement').datagrid({  
+                    url: '/repair/getRepair',
+                    title: '报修信息管理',  
+                    method: 'post',    
+                    singleSelect: true,
+                    fit:true,
+                    fitColumns:true,
+                    columns: [[  
+                        { field: 'nodeMark', title: '节点ID', width: 150},  
+                        { field: 'person', title: '联系人', width: 150},  
+                        { field: 'phone', title: '联系电话', width: 150 },  
+                        { field: 'faultDesc', title: '故障描述', width: 500 },
+                        { field: 'faultTime', title: '上报时间', width: 150 ,
+                        
+                            formatter:function(value,row,index){
+                                   var time = new Date(row.faultTime);
+                                   commonTime = time.toLocaleDateString();
+                                   return commonTime;
+                                   
+                                }
+
+                        },   
+                        { field: 'status', title: '故障状态', width: 100 ,
+                        
+                            formatter:function(value,row,index){
+                                if(row.status=='0'){
+                                     return "未确认";
+                                }
+                                else{
+                                    return '已确认';
+                                }       
+                            }
+                        
+                        },  
+                    ]],  
+                    pagination: true,  
+                    pageSize:30,  
+                    pageList: [2, 5, 10, 30],  
+                    toolbar:[
+                                    {
+                                            text: '添加', iconCls: 'icon-add', handler: function () {//添加列表的操作按钮添加，修改，删除等
+                                            if(userType=="1"){
+                                                $('#Add').window('open');      
+                                            }else{
+                                                alert("权限不足");
+                                            }
+                                        }
+                                
+                                    },
+                                    '-',
+                                    {
+                                        
+                                        text: '删除', iconCls: 'icon-remove', handler: function () {
+                                            //删除时先获取选择行
+                                        if(userType=="1"){
+                                        
+                                            var rows = datagrid.datagrid("getSelected");
+                                            
+                                                $.messager.confirm("提示", "你确定要删除吗?", function (r) {
+                                                    if (r) {
+                                                        $.ajax({
+                                                            xhrFields: {
+                                                            withCredentials: true
+                                                            },
+                                                            crossDomain: true,
+                                                            url:'/repair/deleteRepair',
+                                                            type:'post',
+                                                            data:{"repairId":rows.repairId},    
+                                                            async:false,
+                                                            dataType:"json", 
+                                                            success:function(json){
+                                                                var succeed = $.trim(json.succeed);
+                                                                if(succeed=="true"){
+                                                                    alert("删除成功");
+                                                                }else{
+                                                                    alert(json.msg);
+                                                                }
+                                                            }
+                                                        })  
+                                                        
+                                                        location.reload(true); //重新刷新页面
+                                                    }
+                                                });
+                                        }else{
+                                            alert("权限不足");
+                                        }
+                                        }
+                                    
+                                    },
+                                    '-',
+                                    { 
+                                            text: '确认', iconCls: 'icon-edit', handler: function () {
+                                                if(userType=="0"){
+                                                var rows = datagrid.datagrid("getSelected");
+                                                if(rows.status=="0"){
+                                                    $.ajax({
+                                                        xhrFields: {
+                                                        withCredentials: true
+                                                        },
+                                                        crossDomain: true,
+                                                        url:'/repair/updateRepair',
+                                                        type:'get',
+                                                        
+                                                        data:{"nodeMark":rows.nodeMark,"faultDesc":rows.faultDesc,"person":rows.person,"phone":rows.phone,"status":"1","repairId":rows.repairId,"faultTime":rows.faultTime,"address":rows.address}, 
+                                                        async:false,
+                                                        dataType:"json",
+                                                        success:function(json){
+                                                            var succeed = $.trim(json.succeed);
+                                                            if(succeed=="true"){
+                                                                alert("确认成功");
+                                                            }else{
+                                                                alert(json.msg);
+                                                            }
+                                                        }
+                                                    })
+                                                    location.reload(true); //重新刷新页面
+                                                }
+                                                else{
+                                                    alert("该报修信息已确认，请勿重复确认");
+                                                }
+                                                }else{
+                                                    alert("权限不足");
+                                                }
+                                            }
+                                            
+                                    },
+                            ]
+
+                })  
+            })  
+        </script>
+
+</body>
+</html>

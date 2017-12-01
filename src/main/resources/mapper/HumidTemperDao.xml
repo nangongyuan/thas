@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuan.dao.HumidTemperDao">
+
+   <insert id="insertHumidTemper">
+       insert into TemperHumid(NodeMark,Humidity,Temper,Type,ReportTime) values (#{nodeMark},#{humidity},#{temper},#{type},#{date})
+   </insert>
+
+    <select id="queryTemperHumidity" resultType="com.yuan.dto.TemperHumidityResult">
+        select TemperHumid.NodeMark,TemperHumid.Temper,TemperHumid.Humidity,ReportTime,node.Type from TemperHumid,node
+        where node.NodeMark=TemperHumid.NodeMark and TemperHumid.NodeMark=#{nodeMark} and ReportTime>=#{startTime} and ReportTime<![CDATA[<=]]>#{endTime} order by ReportTime
+    </select>
+
+    <select id="queryTemperHumidityAvg" resultType="com.yuan.dto.TemperHumidityResult">
+        select NodeMark,AVG(cast(Temper as int) ) as temper,AVG(cast(Humidity as int) ) as humidity from TemperHumid
+        where NodeMark=#{nodeMark} and ReportTime>=#{startTime} and ReportTime<![CDATA[<=]]>#{endTime} group by NodeMark
+    </select>
+
+</mapper>

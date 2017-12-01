@@ -1,0 +1,25 @@
+@font-face {
+	font-weight: normal;
+	font-style: normal;
+	font-family: 'codropsicons';
+	src:url("../fonts/codropsicons/codropsicons.eot"/*tpa=http://www.52xl.club/fonts/codropsicons/codropsicons.eot*/);
+	src:url("../fonts/codropsicons/codropsicons.eot-#iefix"/*tpa=http://www.52xl.club/fonts/codropsicons/codropsicons.eot?#iefix*/) format('embedded-opentype'),
+		url("../fonts/codropsicons/codropsicons.woff"/*tpa=http://www.52xl.club/fonts/codropsicons/codropsicons.woff*/) format('woff'),
+		url("../fonts/codropsicons/codropsicons.ttf"/*tpa=http://www.52xl.club/fonts/codropsicons/codropsicons.ttf*/) format('truetype'),
+		url("../fonts/codropsicons/codropsicons.svg#codropsicons"/*tpa=http://www.52xl.club/fonts/codropsicons/codropsicons.svg#codropsicons*/) format('svg');
+}
+
+*, *:after, *:before { -webkit-box-sizing: border-box; box-sizing: border-box; }
+.clearfix:before, .clearfix:after { content: ''; display: table; }
+.clearfix:after { clear: both; }
+
+body {
+	background: #fff;
+	color: #FFFFFF;
+	font-weight: 400;
+	font-size: 2em;
+	line-height: 1.25;
+	font-family: 'Raleway', Calibri, Arial, sans-serif;
+}
+
+

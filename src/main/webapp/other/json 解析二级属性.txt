@@ -1,0 +1,88 @@
+ columns: [[  
+                        { field: 'unit', title: '单位ID', width: 150 ,
+                            formatter: function(value,row,index){
+                                    if (row.unit){
+                                        if(row.unit.unitId!= '')
+                                            return row.unit.unitId;
+                                        else{
+                                            return '';
+                                        }
+                                    } else {
+                                        return '';
+                                    }
+                            }
+                        },  
+                        { field: 'title', title: '单位名称', width: 150 ,editor:'text',
+                            formatter: function(value,row,index){
+                                        if (row.unit){
+                                            if(row.unit.title!= '')
+                                                return row.unit.title;
+                                            else{
+                                                return '';
+                                            }
+                                        } else {
+                                            return '';
+                                        }
+                                }
+                        },  
+                        { field: 'address', title: '单位所在地', width: 150 ,editor:'text',
+                    
+                            formatter: function(value,row,index){
+                                        if (row.unit){
+                                            if(row.unit.address!= '')
+                                                return row.unit.address;
+                                            else{
+                                                return '';
+                                            }
+                                        } else {
+                                            return '';
+                                        }
+                            }
+
+                        },  
+                        { field: 'person', title: '联系人', width: 150 ,editor:'text',
+                    
+                            formatter: function(value,row,index){
+                                            if (row.unit){
+                                                if(row.unit.person!= '')
+                                                    return row.unit.person;
+                                                else{
+                                                    return '';
+                                                }
+                                            } else {
+                                                return '';
+                                            }
+                            }
+                        
+                        },  
+                        { field: 'phone', title: '联系方式', width: 150  ,editor:'text',
+                    
+                            formatter: function(value,row,index){
+                                            if (row.unit){
+                                                if(row.unit.phone!= '')
+                                                    return row.unit.phone;
+                                                else{
+                                                    return '';
+                                                }
+                                            } else {
+                                                return '';
+                                            }
+                            }
+                        
+                        },  
+                        { field: 'email', title: '电子邮件', width: 150  ,editor:'text',
+                    
+                            formatter: function(value,row,index){
+                                            if (row.unit){
+                                                if(row.unit.email!= '')
+                                                    return row.unit.email;
+                                                else{
+                                                    return '';
+                                                }
+                                            } else {
+                                                return '';
+                                            }
+                            }
+
+                        },  
+                    ]],  

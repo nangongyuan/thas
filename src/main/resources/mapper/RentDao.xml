@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuan.dao.RentDao">
+    <select id="getRentInfo" resultType="RentInfo">
+        select RentId,GetwayId,UnitId,StartTime,EndTime,Pay,Status from rent where 1!=2
+        <if test="map.getwayId!=null">and GetwayId=#{map.getwayId}</if>
+    </select>
+
+    <select id="getRented" resultType="RentInfo">
+        select RentId,GetwayId,UnitId,StartTime,EndTime,Pay,Status from rent WHERE
+        getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime
+    </select>
+
+    <insert id="addRent" parameterType="com.yuan.entity.RentInfo">
+        insert into rent(GetwayId,UnitId,StartTime,EndTime,Pay,Status) values (#{getwayId},#{unitId},#{startTime},#{endTime},
+        #{pay},1)
+    </insert>
+    <delete id="deleteRent">
+        delete from rent where RentId=#{rentId}
+    </delete>
+    <update id="updateRent" parameterType="RentInfo">
+        update rent set GetwayId=#{getwayId},UnitId=#{unitId},StartTime=#{startTime},EndTime=#{endTime},Pay=#{pay},
+        Status=1 where RentId=#{rentId}
+    </update>
+</mapper>

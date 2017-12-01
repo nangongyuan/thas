@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+    <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+    <title>用户管理</title>
+    <style>
+        #tbunit {
+            position: absolute;
+            height: auto;
+        }
+
+        #tbuser {
+            position: absolute;
+            height: auto;
+            left: 320px;
+        }
+
+        #fm {
+            margin: 0;
+            padding: 10px 30px;
+        }
+    </style>
+    <script>
+        var AddorUpdateType = 1;
+
+        function Submit1() {
+            var Name = myform.Name.value;
+            var userNAME = myform.userNAME.value;
+            var Password = myform.Password.value;
+            var MEMO = myform.MEMO.value;
+            var UserID = myform.UserID.value;
+            var UserTYPE = myform.UserTYPE.value;
+            var UnitID = myform.UnitID.value;
+
+            var item = $("#items").val();
+            var url;
+            if (AddorUpdateType == 0) {
+                $.ajax({
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    url: '/user/updateUser',
+                    type: 'post',
+                    dataType: 'json',
+                    async: false,
+                    data: {
+                        "userId": UserID,
+                        "userName": userNAME,
+                        "password": Password,
+                        "memo": MEMO,
+                        "userType": item,
+                        "name": Name,
+                        "unitId": UnitID
+                    },
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+
+                            alert("修改成功");
+
+                        } else {
+                            alert("修改失败，用户名已被注册或其他未知问题！");
+                        }
+                    },
+                    error: function () {
+
+                    }
+                })
+            } else {
+                $.ajax({
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    async: false,
+                    url: '/user/addUser',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        "userName": userNAME,
+                        "password": Password,
+                        "memo": MEMO,
+                        "userType": item,
+                        "name": Name,
+                        "unitId": UnitID
+                    },
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+
+                            alert("添加成功");
+
+                        } else {
+                            alert("添加失败，用户名已被注册或其他未知问题！");
+                        }
+                    },
+                    error: function () {
+
+                    }
+                })
+            }
+
+        }
+    </script>
+</head>
+
+<body style="overflow-x:hidden;overflow-y:hidden;">
+    <div>
+        
+        <div id="tbunit" style="width:49%;height:99%">
+            <table id="unitManagement"></table>
+
+        </div>
+
+        <div id="tbuser" style="width:49%;height:99%;position:absolute;left:50%">
+            <table id="userManagement"></table>
+            <div id="tb2" style="padding:5px;display:none">
+                <div>
+                    查询用户：
+                    <input type="text" style="width:150px;" />
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="">查询</a>
+                </div>
+            </div>
+        </div>
+   
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var a = 0;
+            var editRow = undefined;
+
+            $('#unitManagement').datagrid({
+                url: '/unit/getUnit',
+                width: 305,
+                title: '单位',
+                method: 'post',
+                toolbar: '#tb',
+                dataType: 'json',
+                fit: true,
+                fitColumns: true,
+                onClickRow: function (index, row) {
+                    document.getElementById("tb2").style.display = "show";
+
+
+
+                    var datagrid;
+                    var editRow = undefined;
+
+                    datagrid = $('#userManagement').datagrid({
+                        url: '/user/getUserByUnitId?unitId=' + row.unitId,
+                        width: 1160,
+                        title: '用户管理',
+                        method: 'post',
+                        dataType: 'json',
+                        fit: true,
+                        fitColumns: true,
+
+
+                        columns: [
+                            [{
+                                    field: 'userType',
+                                    title: '用户类型',
+                                    width: 150,
+                                    formatter: function (value, row, index) {
+
+                                                if (row.userType == "1") {
+                                                    return "单位管理员";
+                                                } else if(row.userType == "0"){
+                                                    return "系统管理员";
+                                                }else if(row.userType == "2"){
+                                                    return "特权管理员";
+                                                }else if(row.userType == "3"){
+                                                    return "普通用户";
+                                                }
+
+                                            }
+                                },
+                                {
+                                    field: 'name',
+                                    title: '姓名',
+                                    width: 150,
+                                    editor: 'text'
+                                },
+                                {
+                                    field: 'userName',
+                                    title: '用户名',
+                                    width: 150,
+                                    editor: 'text'
+                                },
+                                {
+                                    field: 'password',
+                                    title: '密码',
+                                    width: 150,
+                                    editor: 'text'
+                                },
+                                {
+                                    field: 'memo',
+                                    title: '备注',
+                                    width: 150,
+                                    editor: 'text'
+                                },
+
+                            ]
+                        ],
+                        toolbar: [{
+                                text: '添加',
+                                iconCls: 'icon-add',
+                                handler: function () { //添加列表的操作按钮添加，修改，删除等
+                                    AddorUpdateType = 1
+                                    $('#AddorUpdate').window('open');
+                                    $("#UnitID").attr("value", row.unitId);
+                                }
+
+                            },
+                            '-',
+                            {
+                                text: '修改',
+                                iconCls: 'icon-edit',
+                                handler: function () {
+                                    AddorUpdateType = 0;
+                                    var rows = datagrid.datagrid("getSelections");
+                                    var row = datagrid.datagrid("getSelected");
+                                    if (rows.length > 0) {
+                                        $('#AddorUpdate').window('open');
+                                        $("#Name").attr("value", row.name); //填充内容
+                                        $("#userNAME").attr("value", row.userName);
+                                        $("#Password").attr("value", row.password);
+                                        $("#MEMO").attr("value", row.memo);
+                                        $("#UserID").attr("value", row.userId);
+                                        $("#UserTYPE").attr("value", row.userType);
+                                        $("#UnitID").attr("value", row.unitId);
+                                        if (row.userType == "3") {
+                                            $("#items").val(3);
+                                        } else if (row.userType == "2") {
+                                            $("#items").val(2);
+                                        } else if (row.userType == "1") {
+                                            $("#items").val(1);
+                                        } else {
+                                            $("#items").val(-1);
+                                        }
+                                    } else {
+                                        $.messager.alert("提示", "请选择要修改的数据", "error");
+                                    }
+                                }
+
+                            },
+                            '-',
+                            {
+                                text: '删除',
+                                iconCls: 'icon-remove',
+                                handler: function () {
+                                    //删除时先获取选择行
+                                    var rows = datagrid.datagrid("getSelected");
+
+                                    $.messager.confirm("提示", "你确定要删除吗?", function (
+                                        r) {
+                                        if (r) {
+                                            $.ajax({
+                                                xhrFields: {
+                                                    withCredentials: true
+                                                },
+                                                crossDomain: true,
+                                                url: '/user/deleteUser',
+                                                type: 'post',
+                                                data: {
+                                                    "userId": rows.userId
+                                                },
+                                                async: false,
+                                                success: function (
+                                                    json) {
+                                                    var msg = $
+                                                        .trim(
+                                                            json
+                                                            .msg
+                                                        );
+                                                    if (msg ==
+                                                        "") {
+                                                        alert(
+                                                            "删除成功"
+                                                        );
+                                                    } else {
+                                                        alert(
+                                                            json
+                                                            .msg
+                                                        );
+                                                    }
+                                                }
+                                            })
+
+                                            location.reload(true); //重新刷新页面
+                                        }
+                                    });
+
+                                }
+
+                            }
+                        ],
+
+                        pagination: true,
+                        singleSelect: true,
+                        pageSize: 30,
+                        pageList: [1, 2, 30],
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                    }) //动态加载单位数据表格  
+
+
+                },
+
+                columns: [
+                    [{
+                            field: 'unitId',
+                            title: '单位ID',
+                            width: 150,
+                            editor: 'text'
+                        },
+                        {
+                            field: 'title',
+                            title: '单位名称',
+                            width: 150,
+                            editor: 'text'
+                        },
+                    ]
+                ],
+
+
+
+                pagination: true,
+                singleSelect: true,
+                pageSize: 30,
+                pageList: [1, 2, 30],
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+
+            }) //动态加载单位数据表格  
+
+            $("#AddorUpdate").dialog({
+                onClose: function () {
+
+                    $("#Name").attr("value", ""); //填充内容
+                    $("#userNAME").attr("value", "");
+                    $("#Password").attr("value", "");
+                    $("#MEMO").attr("value", "");
+                    $("#UserID").attr("value", "");
+                    $("#UserTYPE").attr("value", "");
+                    $("#UnitID").attr("value", "");
+                }
+            });
+        })
+    </script>
+
+
+    <div id="AddorUpdate" closed='true' class="easyui-dialog" title="请输入添加/修改信息" style="width:270px;height:450px;" data-options="iconCls:'none',resizable:true,modal:true">
+        <form name="myform">
+
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;用户姓名</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="Name">
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;用户名</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="userNAME">
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;密码</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="Password" type="password">
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;备注</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="MEMO">
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;用户类型</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <select id="items" name="items">
+                <option value="-1">--------请选择-------</option>
+                <option value="1">单位管理员</option>
+                <option value="2">特权管理员</option>
+                <option value="3">普通用户</option>
+            </select>
+            <div style="display:none">
+                <input id="UserID">
+                <input id="UnitID">
+                <input id="UserTYPE">
+            </div>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <button style="position:absolute;width:50px;height:30px;right:20px" onclick="Submit1()">提交</button>
+
+        </form>
+
+
+    </div>
+
+
+
+
+</body>
+
+</html>

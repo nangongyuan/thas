@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+    <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+    <title>湿度曲线图</title>
+    <style>
+        #PointHSDline {
+            position: absolute;
+            top: 25%;
+            width: 100%;
+        }
+    </style>
+    <script>
+        var value = new Array();
+        var valueSd = new Array();
+        var valueG = new Array();
+        var valueGSd = new Array();
+        var valueday;
+        var valuedaySd;
+        var valuedayG;
+        var valuedayGSd;
+        var xzhou = new Array();
+        var xzhouG = new Array();
+        var jsonDay = new Array();
+        var xtitle;
+
+        var a = 0;
+
+        function load() {
+            var loadselect = new Array();
+            $.ajax({
+                type: "get",
+                url: '/query/getQueryGetway',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (loadselect) {
+                    var select = document.getElementById('Select');
+
+                    var a = 0;
+                    var j = 0;
+                    var b = 0;
+                    for (var i = 0; i < loadselect.length; i++) {
+                        a = i + j + 1;
+
+                        var strGetway = loadselect[i].getwayMark + "(网关)";
+                        select.add(new Option(strGetway, loadselect[i].getwayMark));
+
+                        for (j = 1; j < loadselect[i].queryNodeResultList.length + 1; j++) {
+                            b = 3 * i + j + 1;
+                            str = "......" + loadselect[i].queryNodeResultList[j - 1].nodeMark + "(节点)";
+                            select.add(new Option(str, loadselect[i].getwayMark + "/" + loadselect[i].queryNodeResultList[
+                                j - 1].nodeMark));
+                        }
+                        j--;
+                    }
+                },
+                error: function () {}
+            });
+        }
+
+
+        function SearchWS() {
+            xzhou = new Array();
+            xzhouG = new Array();
+            var selectvalue = document.getElementById('Select').value;
+            var datetype = document.getElementById('Selecttype').value;
+
+
+            var result = selectvalue.split("/");
+
+
+            if (datetype == '1') {
+                xtitle = "reportTime";
+            } else if (datetype == '2') {
+                xtitle = "day";
+            } else {
+                xtitle = "month";
+            }
+
+
+            var nselect;
+            for (var i = 0; i < result.length; i++) {
+                nselect = nselect + result[i];
+            }
+
+            if (datetype == '1') {
+                if (nselect == selectvalue) {
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[0] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    valueG[i] = null;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhou[i] = commonTime;
+                                } else {
+                                    valueG[i] = jsonDay[i].temper;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhou[i] = commonTime;
+                                }
+                            }
+                            valuedayG = eval(valueG);
+                            if (a % 2 == 0) {
+                                Shidu();
+                            }
+                        },
+                        error: function () {}
+                    })
+                } else {
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[0] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    valueG[i] = null;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhouG[i] = commonTime;
+                                } else {
+                                    valueG[i] = jsonDay[i].humidity;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhouG[i] = commonTime;
+                                }
+                            }
+                            valuedayG = eval(valueG);
+                            if (a % 2 == 0) {
+                                Shidu();
+                            }
+                        },
+                        error: function () {}
+                    })
+
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[1] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    value[i] = null;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhou[i] = commonTime;
+                                } else {
+                                    value[i] = jsonDay[i].humidity;
+                                    var time = new Date(jsonDay[i].reportTime);
+                                    var h = time.getHours(); //获取小时
+                                    var m = time.getMinutes(); //获取分钟
+                                    var s = time.getSeconds(); //获取秒
+                                    var commonTime = h + ":" + m + ":" + s;
+                                    xzhou[i] = commonTime;
+                                }
+                            }
+                            valueday = eval(value);
+                            if (a % 2 == 0) {
+                                Shidu();
+                            }
+                        },
+                        error: function () {}
+                    })
+                }
+            } else {
+                if (nselect == selectvalue) {
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[0] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    valueG[i] = null;
+                                    xzhou[i] = i + 1;
+                                } else {
+                                    valueG[i] = jsonDay[i].temper;
+                                    xzhou[i] = i + 1;
+                                }
+                            }
+                            valuedayG = eval(valueG);
+                            if (a % 2 == 0) {
+                                Shidu1();
+                            }
+                        },
+                        error: function () {}
+                    })
+                } else {
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[0] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    valueG[i] = null;
+                                    xzhou[i] = i + 1;
+                                } else {
+                                    valueG[i] = jsonDay[i].humidity;
+                                    xzhou[i] = i + 1;
+                                }
+                            }
+                            valuedayG = eval(valueG);
+                            if (a % 2 == 0) {
+                                Shidu1();
+                            }
+                        },
+                        error: function () {}
+                    })
+
+                    $.ajax({
+                        type: 'post',
+                        url: '/query/temperHumidityAvg?nodeMark=' + result[1] + "&type=" +
+                            datetype +
+                            "&parameter=" +
+                            document.getElementById("time").value,
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        success: function (jsonDay) {
+                            a++;
+                            for (var i = 0; i < jsonDay.length; i++) {
+                                if (jsonDay[i] == null) {
+                                    value[i] = null;
+                                    xzhou[i] = i + 1;
+                                } else {
+                                    value[i] = jsonDay[i].humidity;
+                                    xzhou[i] = i + 1;
+                                }
+                            }
+                            valueday = eval(value);
+                            if (a % 2 == 0) {
+                                Shidu1();
+                            }
+                        },
+                        error: function () {}
+                    })
+                }
+            }
+        }
+
+        function Shidu() {
+            var daypoint = {
+                "xAxis": [{
+                        "type": "datetime",
+                        "categories": xzhou,
+                        "title": {
+                            "text": xtitle,
+                        },
+                        "opposite": false,
+                        "ceiling": xzhou.length,
+                        "index": 0,
+                        "isX": true
+                    },
+                    {
+                        "categories": xzhouG,
+                        "title": {
+                            "text": 'GetWayreportTime',
+                        },
+                        "opposite": true,
+                        "ceiling": xzhouG.length,
+                        "index": 1,
+                        "isX": true,
+                    }
+                ],
+                "series": [{
+                        "name": "节点湿度曲线",
+                        "data": valueday,
+                        "xAxis": 0,
+                        "_colorIndex": 0,
+                        "_symbolIndex": 0
+                    },
+                    {
+                        "name": "网关湿度曲线",
+                        "data": valuedayG,
+                        "xAxis": 1,
+                        "_colorIndex": 1,
+                        "_symbolIndex": 1
+                    }
+
+                ],
+                "yAxis": [{
+                    "title": {
+                        "text": "湿度 (RH%)"
+                    },
+                    "opposite": false,
+                    "reversed": false,
+                    "index": 0
+                }],
+                "chart": {
+                    "style": {
+                        "fontFamily": "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                        "color": "#333",
+                        "fontSize": "12px",
+                        "fontWeight": "normal",
+                        "fontStyle": "normal"
+
+                    },
+                    "zoomType": "xy",
+                    "type": "area",
+                    "backgroundColor": "#fff"
+                },
+                "title": {
+                    "text": "节点历史湿度曲线表",
+                    "x": -20
+                },
+                "subtitle": {
+                    "text": "",
+                    "x": -20
+                },
+                "tooltip": {
+                    "valueSuffix": "Rh%",
+                    "enabled": true
+                },
+                "legend": {
+                    "layout": "vertical",
+                    "align": "right",
+                    "verticalAlign": "middle",
+                    "floating": false,
+                    "enabled": true
+                },
+                "colors": [
+                    "#629DDF",
+                    "#E05634",
+                    "#FF0000",
+                ],
+                "plotOptions": {
+                    "series": {
+                        "dataLabels": {
+                            "enabled": true,
+                            "connectNulls": true,
+                            "style": {
+                                "fontFamily": "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                                "color": "contrast",
+                                "fontSize": "8px",
+                                "fontWeight": "bold",
+                                "fontStyle": "normal",
+                                "textOutline": "1px 1px contrast"
+                            },
+                            "allowOverlap": false
+                        },
+                        "animation": false
+                    }
+                },
+                "credits": {
+                    "enabled": false
+                }
+            }
+            Highcharts.chart('PointHSDline', daypoint);
+        }
+
+        function Shidu1() {
+            var daypoint = {
+                "xAxis": [{
+                    "type": "datetime",
+                    "categories": xzhou,
+                    "title": {
+                        "text": xtitle,
+                    },
+                    "opposite": false,
+                    "ceiling": xzhou.length,
+                    "index": 0,
+                    "isX": true
+                }, ],
+
+               
+
+                "series": [{
+                        "name": "节点湿度曲线",
+                        "data": valueday,
+                        "xAxis": 0,
+                        "_colorIndex": 0,
+                        "_symbolIndex": 0
+                    },
+                    {
+                        "name": "网关湿度曲线",
+                        "data": valuedayG,
+                        "xAxis": 0,
+                        "_colorIndex": 1,
+                        "_symbolIndex": 0
+                    }
+
+                ],
+                "yAxis": [{
+                    "title": {
+                        "text": "湿度 (RH%)"
+                    },
+                    "opposite": false,
+                    "reversed": false,
+                    "index": 0,
+                    "plotLines": [{
+                        color: 'red', // Color value
+                        dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+                        value: 100, // Value of where the line will appear
+                        width: 2, // Width of the line    
+
+                    }],
+                }
+                
+                ],
+                "chart": {
+                    "style": {
+                        "fontFamily": "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                        "color": "#333",
+                        "fontSize": "12px",
+                        "fontWeight": "normal",
+                        "fontStyle": "normal"
+
+                    },
+                    "zoomType": "xy",
+                    "type": "area",
+                    "backgroundColor": "#fff"
+                },
+                "title": {
+                    "text": "节点历史湿度曲线表",
+                    "x": -20
+                },
+                "subtitle": {
+                    "text": "",
+                    "x": -20
+                },
+                "tooltip": {
+                    "valueSuffix": "RH%",
+                    "enabled": true
+                },
+                "legend": {
+                    "layout": "vertical",
+                    "align": "right",
+                    "verticalAlign": "middle",
+                    "floating": false,
+                    "enabled": true
+                },
+                "colors": [
+                    "#629DDF",
+                    "#E05634",
+                    "#FF0000",
+                ],
+                "plotOptions": {
+                    "series": {
+                        "dataLabels": {
+                            "enabled": true,
+                            "connectNulls": true,
+                            "style": {
+                                "fontFamily": "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                                "color": "contrast",
+                                "fontSize": "8px",
+                                "fontWeight": "bold",
+                                "fontStyle": "normal",
+                                "textOutline": "1px 1px contrast"
+                            },
+                            "allowOverlap": false
+                        },
+                        "animation": false
+                    }
+                },
+                "credits": {
+                    "enabled": false
+                }
+            }
+            Highcharts.chart('PointHSDline', daypoint);
+        }
+    </script>
+</head>
+
+<body onload="load()" style="overflow-x:hidden;overflow-y:hidden;">
+    <div>
+        <table>
+            <tr>
+                <td> 查询节点：</td>
+                <td>
+                    <select id="Select" style="width:160px">
+                        <option>请选择</option>
+                    </select>
+                </td>
+
+
+
+
+                <td>查询类型：</td>
+                <td>
+                    <select id="Selecttype" style="width:160px">
+                        <option value="3">年</option>
+                        <option value="2">月</option>
+                        <option value="1">日</option>
+                    </select>
+                </td>
+
+
+                <td>时间：</td>
+                <td>
+                    <input id="time" type="text" class="easyui-datebox" required="required"></input>
+                </td>
+
+
+
+                <td>
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="SearchWS()">查询</a>
+                </td>
+            </tr>
+
+
+
+        </table>
+    </div>
+
+    <div id="PointHSDline"></div>
+</body>
+
+</html>

@@ -1,0 +1,885 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+    <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+    <title>网关/节点信息维护</title>
+    <style>
+        #tbunit {
+            position: absolute;
+            height: auto;
+        }
+
+        #tbuser {
+            position: absolute;
+            height: auto;
+            left: 750px;
+        }
+
+        #fm {
+            margin: 0;
+            padding: 10px 30px;
+        }
+    </style>
+    <script>
+        var AddorUpdateType = 1;
+        var getwayAddorUpdateType = 1;
+        
+        //var json=new Array();       
+        // function load() {
+        //     $.ajax({
+        //         type: "get",
+        //         url: '/unit/getUnit?page=1&rows=1000000',
+        //         xhrFields: {
+        //             withCredentials: true
+        //         },
+        //         crossDomain: true,
+        //         success: function (json) {
+        //             var select = document.getElementById('Unittitle');
+
+        //             for (var i = 0; i < json.rows.length; i++) {
+        //                 select.add(new Option(json.rows[i].title, json.rows[i].unitId));
+        //             }
+        //         },
+        //         error: function () {}
+        //     });
+        // }
+
+        function Submit1() {
+            var Nodemark = myform.Nodemark.value;
+            var GetwayId = myform.GetwayId.value;
+            var MEMO = myform.MEMO.value;
+            var Nodenum = myform.Nodenum.value;
+            var Nodeid = myform.Nodeid.value;
+            var Status = $("#Status").val();
+            var SpareNode = $("#SpareNode").val();
+            var url;
+            alert(GetwayId)
+            if (AddorUpdateType == 0) { //修改节点
+                $.ajax({
+                    url: '/getway/updateNode',
+                    type: 'get',
+                    dataType: "json",
+                    data: {
+                        "nodeMark": Nodemark,
+                        "type": "2",
+                        "status": Status,
+                        "memo": MEMO,
+                        "getwayId": GetwayId,
+                        "spareNode": SpareNode,
+                        "nodeNum": Nodenum,
+                        "nodeId": Nodeid
+                    },
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    async: false,
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+                            alert("修改成功");
+                        } else {
+                            alert(json.msg);
+                            location.reload(true); //重新刷新页面
+                        }
+                    }
+                })
+            } else if (AddorUpdateType == 1) { //添加节点
+                $.ajax({
+                    url: '/getway/addNode',
+                    type: 'get',
+                    dataType: "json",
+                    data: {
+                        "nodeMark": Nodemark,
+                        "status": Status,
+                        "memo": MEMO,
+                        "getwayId": GetwayId,
+                        "spareNode": SpareNode,
+                        "nodeNum": Nodenum
+                    },
+                    async: false,
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+                            alert("添加成功");
+                        } else {
+                            alert(json.msg);
+                            location.reload(true); //重新刷新页面
+                        }
+                    }
+                })
+            }
+        }
+
+        function Submit2() {
+            var Getwaytimeinter = 0;
+            var Getwaymark = myform1.Getwaymark.value;
+            var MEMO = myform1.GetwayMEMO.value;
+            var Nodenum = myform1.GetwayNodenum.value;
+            var GetwayId = myform1.GetwayId1.value;
+            var Status = $("#getwayStatus").val();
+            var SpareNode = $("#getwaySpareNode").val();
+            var Unitid = $("#Unittitle").val();
+            var Unittitle = $("#Unittitle").find("option:selected").text();
+            if (getwayAddorUpdateType == 0) { //修改网关
+                $.ajax({
+                    url: '/getway/updateGetway',
+                    type: 'get',
+                    dataType: "json",
+                    data: {
+                        "timeInter": Getwaytimeinter,
+                        "status": Status,
+                        "memo": MEMO,
+                        "getwayMark": Getwaymark,
+                        "spareNode": SpareNode,
+                        "NodeNum": Nodenum,
+                        "getwayId":GetwayId
+                    },
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    async: false,
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+                            alert("修改成功");
+                        } else {
+                            alert(json.msg);
+                            location.reload(true); //重新刷新页面
+                        }
+                    }
+                })
+            } else if (getwayAddorUpdateType == 1) { //添加网关
+                $.ajax({
+                    url: '/getway/addGetway',
+                    type: 'get',
+                    dataType: "json",
+                    data: {
+                        "timeInter": Getwaytimeinter,
+                        "status": Status,
+                        "memo": MEMO,
+                        "getwayMark": Getwaymark,
+                        "spareNode": SpareNode,
+                        "NodeNum": Nodenum,
+                    },
+                    async: false,
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    success: function (json) {
+                        var succeed = $.trim(json.succeed);
+                        if (succeed == "true") {
+                            alert("添加成功");
+                        } else {
+                            alert(json.msg);
+                        }
+                    },
+                    error:function(){
+                        alert(123);
+                    }
+                })
+            }
+        }
+    </script>
+</head>
+
+<body style="overflow-x:hidden;overflow-y:hidden;">
+
+    <div style="width:99%;height:99%">
+
+        <div id="tbunit" style="width:55%;height:99%;">
+            <table id="getwayManagement"></table>
+
+        </div>
+
+        <div id="tbuser" style="width:43%;height:99%;position:absolute;left:56%">
+            <table id="pointManagement">
+                <div id="tb2" style="padding:5px;display:none">
+
+                </div>
+            </table>
+
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var a = 0;
+            var editRow = undefined;
+            var usertype = localStorage.getItem("usertype");
+
+            var datagrid1 = $('#getwayManagement').datagrid({
+                url: '/getway/getGetway',
+                width: 730,
+                title: '网关管理',
+                method: 'get',
+                fit: true,
+                fitColumns: true,
+                toolbar: [{
+                        text: '添加',
+                        iconCls: 'icon-add',
+                        handler: function () { //添加列表的操作按钮添加，修改，删除等
+                            if(usertype=='0'){
+                                getwayAddorUpdateType = 1;
+                                $('#getwayAddorUpdate').window('open');
+                            }else{
+                                alert("权限不足")
+                            }
+                        }
+
+                    },
+                    '-',
+                    {
+                        text: '修改',
+                        iconCls: 'icon-edit',
+                        handler: function () {
+                            if(usertype=='0'){
+                                var rows = datagrid1.datagrid("getSelections");
+                                var row = datagrid1.datagrid("getSelected");
+                                if (rows.length > 0) {
+                                    $('#getwayAddorUpdate').window('open');
+                                    $("#Getwaymark").attr("value", row.getwayMark); //填充内容
+                                    $("#GetwayNodenum").attr("value", row.nodeNum);
+                                    $("#GetwayMEMO").attr("value", row.memo);
+                                    $("#Getwaytimeinter").attr("value", row.timeInter);
+                                    $("#GetwayId1").attr("value", row.getwayId);
+                                    if (row.status == "1") {
+                                        $("#getwayStatus").val(1);
+                                    } else if (row.status == "0") {
+                                        $("#getwayStatus").val(0);
+                                    } else {
+                                        $("#getwayStatus").val(2);
+                                    }
+
+                                    if (row.spareNode == "0") {
+                                        $("#GetwaySpareNode").val(0);
+                                    } else if (row.spareNode == "1") {
+                                        $("#GetwaySpareNode").val(1);
+                                    } else {
+                                        $("#GetwaySpareNode").val(2);
+                                    }
+                                } else {
+                                    $.messager.alert("提示", "请选择要修改的数据", "error");
+                                }
+                                getwayAddorUpdateType = 0;
+                            }else{
+                                alert("权限不足")
+                            }
+                        }
+                    },
+                    '-',
+                    {
+                        text: '删除',
+                        iconCls: 'icon-remove',
+                        handler: function () {
+                            if(usertype=='0'){
+                            //删除时先获取选择行
+                                var rows = datagrid1.datagrid("getSelections");
+                                var row = datagrid1.datagrid("getSelected");
+                                if (rows.length > 0) {
+                                    $.messager.confirm("提示", "你确定要删除吗?", function (r) {
+                                        if (r) {
+                                            $.ajax({
+                                                url: '/getway/deleteGetway',
+                                                type: 'post',
+                                                data: {
+                                                    "getwayId": row.getwayId
+                                                },
+                                                async: false,
+                                                xhrFields: {
+                                                    withCredentials: true
+                                                },
+                                                crossDomain: true,
+                                                success: function (json) {
+                                                    var succeed = $.trim(json.succeed);
+                                                    if (succeed == "true") {
+                                                        alert("删除成功");
+                                                    } else {
+                                                        alert(json.msg);
+                                                        location.reload(true); //重新刷新页面
+                                                    }
+                                                }
+                                            })
+
+                                            location.reload(true); //重新刷新页面
+                                        }
+                                    });
+                                } else {
+                                    $.messager.alert("提示", "请选择要删除的数据", "error");
+                                }
+                            }else{
+                                alert("权限不足");
+                            }
+                        }
+
+                    },
+                    '-',
+                    {
+                        text: '<input type="text" id="seach">'
+                    },
+                    {
+                        text: '  查询单位',
+                        handler: function () {
+                            if (usertype == "0") {
+                                var val = document.getElementById("seach").value
+                                $('#getwayManagement').datagrid({
+                                    url: "/getway/searchUnit?unit=" +
+                                        val,
+                                    method: "get",
+                                    columns: [
+                                        [{
+                                                field: 'getwayMark',
+                                                title: '网关号',
+                                                width: 150,
+                                                editor: 'text'
+                                            },
+                                            {
+                                                field: 'status',
+                                                title: '网关状态',
+                                                width: 150,
+                                                editor: 'text',
+
+                                                formatter: function (value, row,
+                                                    index) {
+
+                                                    if (row.status == "1") {
+                                                        return "手动";
+                                                    } else {
+                                                        return "自动";
+                                                    }
+
+                                                }
+
+                                            },
+                                            {
+                                                field: 'endTime',
+                                                title: '网关租赁到期时间',
+                                                width: 200,
+                                                editor: 'text',
+
+                                                formatter: function (value, row,
+                                                    index) {
+                                                    if (row.endTime == null) {
+                                                        return "未租赁";
+                                                    } else {
+                                                        var time = new Date(row
+                                                            .endTime);
+                                                        commonTime = time.toLocaleDateString();
+                                                        return commonTime;
+                                                    }
+                                                }
+
+
+                                            },
+                                            {
+                                                field: 'memo',
+                                                title: '备注',
+                                                width: 150,
+                                                editor: 'text'
+                                            },
+                                        ]
+                                    ],
+                                });
+                            } else {
+                                alert("权限不足");
+                            }
+                        }
+                    },
+                    '-',
+                    {
+                        text: '<input type="text" id="seachgetway">'
+                    },
+                    {
+                        text: '  查询网关',
+                        handler: function () {
+                            var val = document.getElementById("seachgetway").value
+                            $('#getwayManagement').datagrid({
+                                url: "/getway/getGetwayByGetwayMark?" +
+                                    "getwayMark=" + val,
+                                method: "get",
+                                columns: [
+                                    [{
+                                            field: 'getwayMark',
+                                            title: '网关号',
+                                            width: 150,
+                                            editor: 'text'
+                                        },
+                                        {
+                                            field: 'status',
+                                            title: '网关状态',
+                                            width: 150,
+                                            editor: 'text',
+
+                                            formatter: function (value, row, index) {
+
+                                                if (row.status == "1") {
+                                                    return "手动";
+                                                } else {
+                                                    return "自动";
+                                                }
+
+                                            }
+
+                                        },
+                                        {
+                                            field: 'endTime',
+                                            title: '网关租赁到期时间',
+                                            width: 200,
+                                            editor: 'text',
+
+                                            formatter: function (value, row, index) {
+                                                if (row.endTime == null) {
+                                                    return "未租赁";
+                                                } else {
+                                                    var time = new Date(row.endTime);
+                                                    commonTime = time.toLocaleDateString();
+                                                    return commonTime;
+                                                }
+                                            }
+
+
+                                        },
+                                        {
+                                            field: 'memo',
+                                            title: '备注',
+                                            width: 150,
+                                            editor: 'text'
+                                        },
+                                    ]
+                                ],
+                            });
+                        }
+                    },
+                ],
+
+
+                onClickRow: function (index, row) {
+                    document.getElementById("tb2").style.display = "show";
+
+
+
+                    var datagrid;
+                    var editRow = undefined;
+
+                    datagrid = $('#pointManagement').datagrid({
+                        url: '/getway/getNodeByGetwayId?getwayId=' + row.getwayId,
+                        width: 780,
+                        title: '节点管理',
+                        method: 'get',
+                        fit: true,
+                        fitColumns: true,
+                        columns: [
+                            [{
+                                    field: 'nodeMark',
+                                    title: '盒子ID',
+                                    width: 150
+                                },
+                                {
+                                    field: 'nodeNum',
+                                    title: '节点号',
+                                    width: 150
+                                },
+                                {
+                                    field: 'status',
+                                    title: '节点状态',
+                                    width: 150,
+                                    editor: 'text',
+
+                                    formatter: function (value, row, index) {
+
+                                        if (row.status == "1") {
+                                            return "自动";
+                                        } else {
+                                            return "手动";
+                                        }
+
+                                    }
+
+                                },
+                                {
+                                    field: 'spareNode',
+                                    title: '是否备用',
+                                    width: 150,
+                                    editor: 'text',
+
+                                    formatter: function (value, row, index) {
+
+                                        if (row.spareNode == "1") {
+                                            return "否";
+                                        } else {
+                                            return "是";
+                                        }
+
+                                    }
+
+                                },
+                                {
+                                    field: 'memo',
+                                    title: '备注',
+                                    width: 150
+                                },
+                            ]
+                        ],
+                        toolbar: [{
+                                text: '添加',
+                                iconCls: 'icon-add',
+                                handler: function () { //添加列表的操作按钮添加，修改，删除等
+                                    if(usertype=='0'){
+                                        AddorUpdateType = 1;
+                                        var row = datagrid1.datagrid("getSelected");
+                                        $('#AddorUpdate').window('open');
+                                        $("#GetwayId").attr("value", row.getwayId);
+                                    }else{
+                                        alert("权限不足")
+                                    }
+                                }
+
+                            },
+                            '-',
+                            {
+                                text: '修改',
+                                iconCls: 'icon-edit',
+                                handler: function () {
+
+                                    if(usertype=='0'){
+                                        AddorUpdateType = 0;
+                                        var rows = datagrid.datagrid("getSelections");
+
+                                        var row = datagrid.datagrid("getSelected");
+                                        if (rows.length > 0) {
+                                            $('#AddorUpdate').window('open');
+                                            $("#Nodeid").attr("value", row.nodeId); //填充内容
+                                            $("#Nodenum").attr("value", row.nodeNum);
+                                            $("#MEMO").attr("value", row.memo);
+                                            $("#Nodemark").attr("value", row.nodeMark);
+                                            $("#GetwayId").attr("value", row.getwayId);
+
+                                            if (row.status == "1") {
+                                                $("#Status").val(1);
+                                            } else if (row.status == "0") {
+                                                $("#Status").val(0);
+                                            } else {
+                                                $("#Status").val(2);
+                                            }
+
+                                            if (row.spareNode == "0") {
+                                                $("#SpareNode").val(0);
+                                            } else if (row.spareNode == "1") {
+                                                $("#SpareNode").val(1);
+                                            } else {
+                                                $("#SpareNode").val(2);
+                                            }
+                                        } else {
+                                            $.messager.alert("提示", "请选择要修改的数据", "error");
+                                        }
+                                    }else{
+                                        alert("权限不足")
+                                    }
+                                }
+
+                            },
+                            '-',
+                            {
+                                text: '删除',
+                                iconCls: 'icon-remove',
+                                handler: function () {
+
+                                    if(usertype=='0'){
+                                        //删除时先获取选择行
+                                        var rows = datagrid.datagrid("getSelected");
+
+                                        $.messager.confirm("提示", "你确定要删除吗?", function (
+                                            r) {
+                                            if (r) {
+                                                $.ajax({
+                                                    url: '/getway/deleteNode',
+                                                    type: 'post',
+                                                    data: {
+                                                        "nodeId": rows.nodeId
+                                                    },
+                                                    async: false,
+                                                    xhrFields: {
+                                                        withCredentials: true
+                                                    },
+                                                    crossDomain: true,
+                                                    success: function (
+                                                        json) {
+                                                        var succeed =
+                                                            $.trim(
+                                                                json
+                                                                .succeed
+                                                            );
+                                                        if (succeed ==
+                                                            "true") {
+                                                            alert(
+                                                                "删除成功"
+                                                            );
+                                                        } else {
+                                                            alert(
+                                                                json
+                                                                .msg
+                                                            );
+                                                            location
+                                                                .reload(
+                                                                    true
+                                                                ); //重新刷新页面
+                                                        }
+                                                    }
+                                                })
+
+                                                location.reload(true); //重新刷新页面
+                                            }
+                                        });
+                                    }else{
+                                        alert("权限不足")
+                                    }
+                                }
+
+                            }
+
+                        ],
+
+                        pagination: true,
+                        singleSelect: true,
+                        pageSize: 30,
+                        pageList: [1, 2, 30],
+                    }) //动态加载单位数据表格  
+
+
+                },
+
+
+                columns: [
+                    [{
+                            field: 'getwayMark',
+                            title: '网关号',
+                            width: 150,
+                            editor: 'text'
+                        },
+                        {
+                            field: 'status',
+                            title: '网关状态',
+                            width: 150,
+                            editor: 'text',
+
+                            formatter: function (value, row, index) {
+
+                                if (row.status == "1") {
+                                    return "手动";
+                                } else {
+                                    return "自动";
+                                }
+
+                            }
+
+                        },
+                        {
+                            field: 'endTime',
+                            title: '网关租赁到期时间',
+                            width: 200,
+                            editor: 'text',
+
+                            formatter: function (value, row, index) {
+                                if (row.endTime == null) {
+                                    return "未租赁";
+                                } else {
+                                    var time = new Date(row.endTime);
+                                    commonTime = time.toLocaleDateString();
+                                    return commonTime;
+                                }
+                            }
+
+
+                        },
+                        {
+                            field: 'memo',
+                            title: '备注',
+                            width: 100,
+                            editor: 'text'
+                        },
+                        {
+                            field: 'unitTitle',
+                            title: '所属单位',
+                            width: 150,
+                            editor: 'text'
+                        },
+                    ]
+                ],
+
+
+
+                pagination: true,
+                singleSelect: true,
+                pageSize: 30,
+                pageList: [1, 2, 30],
+            }) //动态加载单位数据表格  
+
+            $("#AddorUpdate").dialog({
+                onClose: function () {
+                    $("#Nodeid").attr("value", ""); //填充内容
+                    $("#Nodenum").attr("value", "");
+                    $("#MEMO").attr("value", "");
+                    $("#Nodemark").attr("value", "");
+                    $("#Getwayid").attr("value", "");
+                    $("#Status").val(2);
+                    $("#SpareNode").val(2);
+                }
+
+            });
+
+            $("#getwayAddorUpdate").dialog({
+                onClose: function () {
+                    $("#Getwaymark").attr("value", ""); //填充内容
+                    $("#GetwayNodenum").attr("value", "");
+                    $("#GetwayMEMO").attr("value", "");
+                    $("#Getwaytimeinter").attr("value", "");
+                    $("#GetwayStatus").val(2);
+                    $("#GetwaySpareNode").val(2);
+                }
+
+            });
+        })
+    </script>
+
+
+    <div id="AddorUpdate" closed='true' class="easyui-dialog" title="请输入添加/修改信息" style="width:260px;height:270px;" data-options="iconCls:'none',resizable:true,modal:true">
+        <form name="myform">
+
+            <table border="0" style="margin:10px 0;border-collapse:   separate;   border-spacing:   10px;">
+
+                <tr>
+                    <td>盒子ID</td>
+                    <td>
+                        <input id="Nodemark">
+                    </td>
+                </tr>
+                <tr>
+                    <td>节点号</td>
+                    <td>
+                        <input id="Nodenum">
+                    </td>
+                </tr>
+                <tr>
+                    <td>节点状态</td>
+                    <td>
+                        <select id="Status">
+                            <option value="2">--------请选择-------</option>
+                            <option value="0">手动</option>
+                            <option value="1">自动</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否备用</td>
+                    <td>
+                        <select id="SpareNode">
+                            <option value="2">--------请选择-------</option>
+                            <option value="0">是</option>
+                            <option value="1">否</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td>
+                        <input id="MEMO">
+                    </td>
+                </tr>
+            </table>
+
+            <div style="display:none">
+                <input id="GetwayId"><input id="Nodeid">
+            </div>
+
+            <button style="position:absolute;width:50px;height:30px;right:20px" onclick="Submit1()">提交</button>
+
+        </form>
+
+
+    </div>
+
+
+
+    <div id="getwayAddorUpdate" closed='true' class="easyui-dialog" title="请输入添加/修改信息" style="width:300px;height:280px;" data-options="iconCls:'none',resizable:true,modal:true">
+        <form name="myform1">
+
+            <table border="0" style="margin:10px 0;border-collapse:   separate;   border-spacing:   10px;">
+
+                <tr>
+                    <td>网关号</td>
+                    <td>
+                        <input id="Getwaymark">
+                    </td>
+                </tr>
+                <tr>
+                    <td>节点ID</td>
+                    <td>
+                        <input id="GetwayNodenum">
+                    </td>
+                </tr>
+                <!-- <tr>
+                    <td>单位名称</td>
+                    <td>
+                        <select id="Unittitle">
+                            <option value="2">--------请选择-------</option>
+                        </select>
+                    </td>
+                </tr> -->
+                <tr>
+                    <td>网关状态</td>
+                    <td>
+                        <select id="getwayStatus">
+                            <option value="2">--------请选择-------</option>
+                            <option value="0">手动</option>
+                            <option value="1">自动</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否备用</td>
+                    <td>
+                        <select id="GetwaySpareNode">
+                            <option value="2">--------请选择-------</option>
+                            <option value="0">是</option>
+                            <option value="1">否</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td>
+                        <input id="GetwayMEMO">
+                    </td>
+                </tr>
+            </table>
+
+            <div style="display:none">
+                <input id="GetwayId1"><input id="Unitid">
+            </div>
+
+            <button style="position:absolute;width:50px;height:30px;right:20px" onclick="Submit2()">提交</button>
+
+        </form>
+
+
+    </div>
+
+</body>
+
+</html>

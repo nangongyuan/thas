@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+	<script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+	<link rel="stylesheet" href="../../css/tabWeek.css">
+
+
+	<title>实时信息显示</title>
+
+	<style>
+		td {
+			padding: 10px;
+		}
+
+		content {
+			position: absolute;
+			left: 50%;
+			top: 30%;
+		}
+	</style>
+
+	<script>
+		var snr = new Array();
+		var t1 = null;
+		function load() {
+			pcwidth = $(document.body).width() - 20;
+			$("#content").css("width", pcwidth + "px");
+
+			var json = new Array();
+
+			$.ajax({
+				type: "get",
+				url: '/query/getQueryGetway',
+				xhrFields: {
+					withCredentials: true
+				},
+				crossDomain: true,
+				success: function (json) {
+					json = eval(json);
+					var select = document.getElementById('Select');
+
+					for (var i = 0; i < json.length; i++) {
+						var strGetway = json[i].getwayMark;
+						select.add(new Option(strGetway, json[i].getwayId + "/" + i));
+					}
+
+				},
+				error: function () {}
+			});
+
+		}
+
+		function affirm() {
+		    if (t1==null)
+            	t1 = window.setInterval(affirm,5000);
+
+			var result = document.getElementById('Select').value.split("/");
+			var x = result[1];
+
+			var id = "gwn0";
+			var power = "gwp0";
+			var temper = "gwt0";
+			var humid = "gwh0";
+			document.getElementById(id).innerHTML = " ";
+			document.getElementById(power).innerText = " ";
+			document.getElementById(temper).innerText = " ";
+			document.getElementById(humid).innerText = " ";
+
+			for (var i = 1; i < 9; i++) {
+
+				var id = "non" + i;
+				var power = "nop" + i;
+				var temper = "not" + i;
+				var humid = "noh" + i;
+				document.getElementById(id).innerHTML = " ";
+				document.getElementById(power).innerText = " ";
+				document.getElementById(temper).innerText = " ";
+				document.getElementById(humid).innerText = " ";
+
+			}
+
+			var sum;
+			var unitid = localStorage.getItem("userunit");
+			var gwnodenum = new Array();
+			var gwtemper = new Array();
+			var gwhumid = new Array();
+			var gwpower = new Array();
+
+			var nonodenum = new Array();
+			var notemper = new Array();
+			var nohumid = new Array();
+			var nopower = new Array();
+
+			$.ajax({
+				type: "get",
+				url: '/query/TemperHumidServ?op=nowgtth&unitid=' + unitid,
+				xhrFields: {
+					withCredentials: true
+				},
+				crossDomain: true,
+				success: function (json) {
+					json = eval(json)
+					gwnodenum[x] = json[x].nodenum;
+					gwtemper[x] = json[x].temper;
+					gwhumid[x] = json[x].humid;
+					gwpower[x] = json[x].power;
+
+					var id = "gwn0";
+					var power = "gwp0"
+					var temper = "gwt0"
+					var humid = "gwh0"
+					document.getElementById(id).innerHTML = gwnodenum[x];
+					document.getElementById(power).innerText = gwpower[x] + "%";
+					document.getElementById(temper).innerText = gwtemper[x] + "℃";
+					document.getElementById(humid).innerText = gwhumid[x] + "RH%";
+
+				},
+				error: function () {}
+			}); //获取网关并填充信息
+
+
+
+			$.ajax({
+				type: "get",
+				url: '/query/TemperHumidServ?op=now&getwayId=' + result[0],
+				xhrFields: {
+					withCredentials: true
+				},
+				crossDomain: true,
+				success: function (json) {
+					json = eval(json)
+					sum = 1;
+					for (var i = 1; i < json.length; i++) {
+						nonodenum[i] = json[i].nodenum;
+						notemper[i] = json[i].temper;
+						nohumid[i] = json[i].humid;
+						nopower[i] = json[i].power;
+					}
+
+					for (var i = 1; i < json.length; i++) {
+						var id = "non" + i;
+						var power = "nop" + i;
+						var temper = "not" + i;
+						var humid = "noh" + i;
+						document.getElementById(id).innerHTML = "0" + i + "   " + nonodenum[i];
+						document.getElementById(power).innerText = nopower[i] + "%";
+						document.getElementById(temper).innerText = notemper[i] + "℃";
+						document.getElementById(humid).innerText = nohumid[i] + "RH%";
+						sum++;
+					}
+
+					for (i; i < 10; i++) {
+						var id = "non" + i;
+						document.getElementById(id).innerHTML = "0" + i;
+						var nobody = "nobody" + i
+						document.getElementById(nobody).style.backgroundColor = "#f88484";
+					}
+
+				},
+				error: function () {} //获取节点信息并填充
+			});
+
+
+
+			$.ajax({
+				type: "get",
+				url: '/query/GetWayServ?op=getonlinegt&unitid=' + unitid,
+				xhrFields: {
+					withCredentials: true
+				},
+				crossDomain: true,
+				success: function (json) {
+					json = eval(json)
+					for (var i = 0; i < json.length; i++) {
+						snr[i] = json[i].getway;
+
+						for (j = 1; j < sum; j++) {
+							var snra = "snr" + j
+							document.getElementById(snra).innerText = snr[i];
+						}
+					}
+
+					for (var i = 0; i < snr.length; i++) {
+						$.ajax({
+							type: "get",
+							url: '/query/NodeServ?op=nodecx&snr=' + snr[i],
+							xhrFields: {
+								withCredentials: true
+							},
+							crossDomain: true,
+							success: function (json) {
+								var a = JSON.parse(json);
+
+								var auto = a.auto.split("");
+								for (j = 1; j < sum; j++) {
+									var nodestate = "nodestate" + j;
+
+									if (auto[j] == 0) {
+										document.getElementById(nodestate).innerText = "手动";
+									} else {
+										document.getElementById(nodestate).innerText = "自动";
+									}
+
+								}
+
+								for (j; j < 10; j++) {
+									var nodestate = "nodestate" + j;
+									document.getElementById(nodestate).innerText = "无节点";
+								}
+							},
+							error: function () {} //获取节点信息并填充
+						});
+					}
+				},
+				error: function () {} //获取节点信息并填充
+			});
+
+
+
+
+
+		}
+	</script>
+</head>
+
+<body onload="load()" style="overflow-x:hidden;">
+
+	<div>
+		<table>
+			<tr>
+				<td>
+					请选择网关</td>
+				<td>
+					<select id="Select">
+					</select>
+				</td>
+				<td>
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="button" class="btn btn-default" onclick="affirm()">确认</button>
+					</div>
+				</td>
+
+			</tr>
+		</table>
+	</div>
+
+	<div id="change" class="easyui-dialog" style="width:400px;height:380px" closed="true" data-options="title:'请填写',modal:true,
+	buttons:[{
+		text:'提交',
+	},{
+		text:'关闭',
+		
+	}]">
+
+		<div class="easyui-layout" data-options="fit:true">
+			<table align="center">
+				<tr>
+					<td>
+						节点编号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td>
+						<input id="Cnodenum" class="easyui-validatebox" type="text" name="name" data-options="required:true" disabled="disabled">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						手/自动:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td>
+						<select id="Cautoflag" data-options="required:true" style="width:150px;height:25px">
+							<option value="0">
+								请先选择此项
+							</option>
+							<option value="1">
+								手动
+							</option>
+							<option value="F">
+								自动
+							</option>
+						</select>
+					</td>
+
+				</tr>
+			</table>
+
+			<div id="sd" style="display:none">
+				<table align="center">
+					<tr>
+						<td>
+							标志位:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+						<td>
+							<select id="Cflag1" data-options="required:true" style="width:150px;height:25px">
+								<option value="F">
+									开启
+								</option>
+								<option value="0">
+									关闭
+								</option>
+							</select>
+						</td>
+					</tr>
+
+				</table>
+			</div>
+
+			<div id="zd" style="display:none">
+				<table align="center">
+					<tr>
+						<td>
+							标志位:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+						<td>
+							<select id="Cflag2" data-options="required:true" style="width:150px;height:25px">
+								<option value="F">
+									湿度
+								</option>
+								<option value="0">
+									温度
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							启停位1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+						<td>
+							<select id="ss1" data-options="required:true" style="width:150px;height:25px">
+								<option value="F">
+									开启
+								</option>
+								<option value="0">
+									关闭
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							数值1:
+						</td>
+						<td>
+							<select>
+								<option>
+									大于等于
+								</option>
+								<option>
+									小于等于
+								</option>
+							</select>
+							<input id="ssvalue1" class="easyui-validatebox" type="number" data-options="required:true" style="width:78px">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							启停位2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+						<td>
+							<select id="ss2" data-options="required:true" style="width:150px;height:25px">
+								<option value="F">
+									开启
+								</option>
+								<option value="0">
+									关闭
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							数值2:
+						</td>
+						<td>
+							<select>
+								<option>
+									大于等于
+								</option>
+								<option>
+									小于等于
+								</option>
+							</select>
+							<input id="ssvalue2" class="easyui-validatebox" type="number" data-options="required:true" style="width:78px">
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div style="display:none">
+				<input id="nsnr">
+			</div>
+		</div>
+	</div>
+
+	<div id="changeTime" class="easyui-dialog" style="width:400px;height:160px" closed="true" data-options="title:'请填写',modal:true,
+	buttons:[{
+		text:'提交',
+	},{
+		text:'关闭',
+		
+	}]">
+
+		<div class="easyui-layout" data-options="fit:true">
+			<table align="center">
+				<tr>
+					<td>
+						网关编号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td>
+						<input id="GWnum" class="easyui-validatebox" type="text" name="name" data-options="required:true" disabled="disabled">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						上传时间间隔:(s)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td>
+						<input type="number" id="changtime">
+					</td>
+				</tr>
+			</table>
+
+			<div style="display:none">
+				<input id="nsnr">
+			</div>
+		</div>
+	</div>
+
+
+	<div id="content">
+		<div class="week-content" id="myWeek">
+			<div class="week-bar">
+				<div class="week-row content">
+					<div class="week-item">
+						<div class="week-date" id="gwn0"></div>
+						<div class="week-body">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="gwp0">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="gwt0" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="gwh0" class="week-th">
+								</span>
+								<br>
+								<br>
+								<a>重启</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<a class="Time">更改上传时间间隔</a>
+								<br>
+							</div>
+						</div>
+					</div>
+
+					<div class="week-item">
+						<div class="week-date" id="non1"></div>
+						<div class="week-body" id="nobody1">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop1">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not1" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh1" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate1" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div>
+										<span style="display: none" class="snr" id="snr1"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+					<div class="week-item">
+						<div class="week-date" id="non2"></div>
+						<div class="week-body" id="nobody2">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop2">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not2" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh2" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate2" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr2"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+
+
+				</div>
+
+				<div class="week-row content">
+					<div class="week-item">
+						<div class="week-date" id="non3"></div>
+						<div class="week-body" id="nobody3">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop3">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not3" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh3" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate3" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr3"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+					<div class="week-item">
+						<div class="week-date" id="non4"></div>
+						<div class="week-body" id="nobody4">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop4">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not4" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh4" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate4" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr4"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+					<div class="week-item">
+						<div class="week-date" id="non5"></div>
+						<div class="week-body" id="nobody5">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop5">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not5" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh5" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate5" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr5"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="week-row content">
+
+
+					<div class="week-item">
+						<div class="week-date" id="non6"></div>
+						<div class="week-body" id="nobody6">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop6">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not6" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh6" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate6" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr6"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+
+
+					<div class="week-item">
+						<div class="week-date" id="non7"></div>
+						<div class="week-body" id="nobody7">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop7">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not7" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh7" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate7" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr7"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+					<div class="week-item">
+						<div class="week-date" id="non8"></div>
+						<div class="week-body" id="nobody8">
+							<div class="week-day">
+								<div class="week-left">电量</div>
+								<div class="week-right">
+
+									<span class="week-num" id="nop8">
+
+									</span>
+
+								</div>
+							</div>
+							<div class="week-down">
+								温度：
+								<span id="not8" class="week-th">
+								</span>
+								&nbsp;&nbsp; 湿度：
+								<span id="noh8" class="week-th">
+								</span>
+								<br>
+								<br>
+								<div>
+									节点状态：&nbsp;&nbsp;&nbsp;&nbsp;
+									<span id="nodestate8" class="status"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a class="change">手自动切换</a>
+									<br>
+									<div style="display:none">
+										<span class="snr" id="snr8"></span>
+									</div>
+								</div>
+
+
+								<br>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+</body>
+<script>
+	var nodenum = new Array();
+	$('#Cautoflag').on('change', function () {
+		var checkValue = $("#Cautoflag").val();
+		if (checkValue == "1") {
+			$("#sd").show();
+			$("#zd").hide();
+		} else if (checkValue == "F") {
+			$("#sd").hide();
+			$("#zd").show();
+		} else {
+			$("#sd").hide();
+			$("#zd").hide();
+		}
+
+	});
+
+	$('.change').on('click', function (e) {
+		nodenum = ($(this).parent().parent().parent().parent().find('.week-date').html()).split(" ");
+		//alert(nodenum[0]);
+		status = $(this).parent().parent().parent().parent().find('.status').html();
+		if (status == "自动") {
+			$('#change').window('open');
+			$("#Cnodenum").val(nodenum[0]);
+			$("#nsnr").val(snr);
+		} else {
+			$('#change').window('open');
+			$("#Cnodenum").val(nodenum[0]);
+			$("#nsnr").val(snr);
+
+		}
+		snr = $(this).parent().find('.snr').html();
+
+	});
+
+	$('.Time').on('click', function (e) {
+		gwnum = $(this).parent().parent().parent().parent().find('.week-date').html();
+		$('#changeTime').window('open');
+		$("#GWnum").val(gwnum);
+
+	});
+
+	$.extend($.fn.dialog.methods, {
+		bindButtonEvents: function (jq, param) {
+			return jq.each(function () {
+				var dialog = $(this);
+				dialog.parent().on('click', '.dialog-button a', function (e) {
+					var text = $(this).linkbutton('options').text;
+					var method = param[text];
+					if (method) {
+						method();
+					}
+				});
+			});
+		}
+	});
+	// handler:function(){
+	// 		
+	// 	}
+
+	$('#change').dialog('bindButtonEvents', {
+		提交: function () {
+			var Cnodenum = $("#Cnodenum").val();
+			var Cautoflag = $("#Cautoflag").val();
+			var nsnr = $("#nsnr").val();
+			var Cflag1 = $("#Cflag1").val();
+			var Cflag2 = $("#Cflag2").val();
+			var ss1 = $("#ss1").val();
+			var ss2 = $("#ss2").val();
+			var ssvalue1 = $("#ssvalue1").val();
+			var ssvalue2 = $("#ssvalue2").val();
+
+
+			if (Cautoflag == '1') { //手动
+				$.ajax({
+					url: '/query/NodeServ?op=nodeset',
+					type: 'get',
+					dataType: "json",
+					data: {
+						"nodenum": Cnodenum,
+						"autoflag": '0',
+						"flag": Cflag1,
+						"snr": nsnr,
+					},
+					xhrFields: {
+						withCredentials: true
+					},
+					crossDomain: true,
+					async: false,
+					success: function (json) {
+						// var succeed = $.trim(json.succeed);
+						// if (succeed == "true") {
+						// 	alert("修改成功");
+						// } else {
+						// 	alert(json.msg);
+						// 	location.reload(true); //重新刷新页面
+						// }
+					}
+				})
+			} else if (Cautoflag == 'F') { //自动
+			
+				$.ajax({
+					url: '/query/NodeServ?op=nodeset',
+					type: 'get',
+					dataType: "json",
+					data: {
+						"nodenum": Cnodenum,
+						"autoflag": 'F',
+						"flag": Cflag2,
+						"snr": nsnr,
+						"ss1": ss1,
+						"ss2": ss2,
+						"ssvalue1": ssvalue1,
+						"ssvalue2": ssvalue2
+					},
+					xhrFields: {
+						withCredentials: true
+					},
+					crossDomain: true,
+					async: false,
+					success: function (json) {
+						// var succeed = $.trim(json.succeed);
+						// if (succeed == "true") {
+						// 	alert("修改成功");
+						// } else {
+						// 	alert(json.msg);
+						// 	location.reload(true); //重新刷新页面
+						// }
+					}
+				})
+			} else {
+				alert('请选择手自动！');
+			}
+
+
+		},
+		关闭: function () {
+			$('#change ').window('close'); // close a window  
+		}
+	});
+
+	$('#changeTime').dialog('bindButtonEvents', {
+		提交: function () {
+
+		},
+		关闭: function () {
+			$('#changeTime').window('close'); // close a window  
+		}
+	});
+</script>
+
+
+
+</html>

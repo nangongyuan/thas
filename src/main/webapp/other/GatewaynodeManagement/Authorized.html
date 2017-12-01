@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+    <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+    <title>网关授权管理</title>
+    <style>
+        #tbgetway {
+            position: absolute;
+            height: auto;
+        }
+
+        #tbuser {
+            position: absolute;
+            height: auto;
+            left: 480px;
+        }
+
+        #fm {
+            margin: 0;
+            padding: 10px 30px;
+        }
+    </style>
+    <script>
+        function Submit() {
+            var GetwayId = myform.GetwayId.value;
+            var Username = $("#Username").val();
+            var url;
+            //添加授权
+            $.ajax({
+                url: '/getway/addGetwayUser',
+                type: 'get',
+                dataType: "json",
+                data: {
+                    "getwayMark": GetwayId,
+                    "userId": Username
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                async: false,
+                success: function (json) {
+                    var succeed = $.trim(json.succeed);
+                    if (succeed == "true") {
+                        alert("授权成功");
+                    } else {
+                        alert(json.msg);
+                        location.reload(true); //重新刷新页面
+                    }
+                }
+            })
+
+        }
+
+        function load() {
+            var unitId = localStorage.getItem("userunit");
+
+            var json = new Array();
+            $.ajax({
+                url: '/user/getUserByUnitId?rows=100000&page=1&unitId=' + unitId,
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (json) {
+                    var select = document.getElementById('Username');
+
+                    for (var i = 0; i < json.rows.length; i++) {
+                        select.add(new Option(json.rows[i].name, json.rows[i].userId));
+
+                    }
+                },
+                error: function () {}
+            });
+        }
+    </script>
+</head>
+
+<body onload="load()" style="overflow-x:hidden;overflow-y:hidden;">
+
+    <div style="width:99%;height:99%">
+        <div id="tbgetway" style="width:44%;height:100%">
+            <table id="getwayManagement"></table>
+        </div>
+
+        <div id="tbuser" style="width:53%;height:100%;position:absolute;left:46%"> 
+            <table id="pointManagement"></table>
+        </div>
+    </div>
+
+
+        <script type="text/javascript">
+            $(function () {
+                var a = 0;
+                var editRow = undefined;
+
+                var datagrid1 = $('#getwayManagement').datagrid({
+                    url: '/getway/getGetway',
+                    title: '网关列表',
+                    method: 'post',
+                    fit: true,
+                    fitColumns: true,
+                    onClickRow: function (index, row) {
+                        var datagrid;
+                        datagrid = $('#pointManagement').datagrid({
+                            url: '/user/getUserByGetwayId?getwayId=' +
+                                row.getwayId,
+                            title: '网关用户',
+                            method: 'get',
+                            fit: true,
+                            fitColumns: true,
+                            columns: [
+                                [{
+                                        field: 'userType',
+                                        title: '用户类型',
+                                        width: 150,
+
+                                        formatter: function (value, row, index) {
+
+                                            if (row.userType == "3") {
+                                                return "普通用户";
+                                            } else {
+                                                return "单位管理员";
+                                            }
+
+                                        }
+
+                                    },
+                                    {
+                                        field: 'name',
+                                        title: '姓名',
+                                        width: 150
+                                    },
+                                    {
+                                        field: 'memo',
+                                        title: '备注',
+                                        width: 150
+                                    },
+                                ]
+                            ],
+                            toolbar: [{
+                                    text: '添加权限',
+                                    iconCls: 'icon-add',
+                                    handler: function () { //添加列表的操作按钮添加，修改，删除等
+                                        AddorUpdateType = 1;
+                                        var row = datagrid1.datagrid("getSelected");
+                                        $('#AddorUpdate').window('open');
+                                        $("#GetwayId").attr("value", row.getwayMark);
+                                    }
+
+                                },
+                                '-',
+                                {
+                                    text: '删除权限',
+                                    iconCls: 'icon-remove',
+                                    handler: function () {
+                                        //删除时先获取选择行
+                                        var rows = datagrid.datagrid("getSelected");
+                                        $.messager.confirm("提示", "你确定要删除吗?",
+                                            function (r) {
+                                                if (r) {
+                                                    $.ajax({
+                                                        url: '/getway/deleteGetwayUser',
+                                                        type: 'post',
+                                                        data: {
+                                                            "userId": rows
+                                                                .userId,
+                                                            "getwayMark": row
+                                                                .getwayMark
+                                                        },
+                                                        async: false,
+                                                        xhrFields: {
+                                                            withCredentials: true
+                                                        },
+                                                        crossDomain: true,
+                                                        success: function (
+                                                            json) {
+                                                            var
+                                                                succeed =
+                                                                $.trim(
+                                                                    json
+                                                                    .succeed
+                                                                );
+                                                            if (
+                                                                succeed ==
+                                                                "true"
+                                                            ) {
+                                                                alert
+                                                                    (
+                                                                        "删除成功"
+                                                                    );
+                                                            } else {
+                                                                alert
+                                                                    (
+                                                                        json
+                                                                        .msg
+                                                                    );
+                                                                location
+                                                                    .reload(
+                                                                        true
+                                                                    ); //重新刷新页面
+                                                            }
+                                                        }
+                                                    })
+
+                                                    location.reload(true); //重新刷新页面
+                                                }
+                                            });
+
+                                    }
+
+                                }
+
+                            ],
+
+                            pagination: true,
+                            singleSelect: true,
+                            pageSize: 30,
+                            pageList: [1, 2, 30],
+                        }) //动态加载单位数据表格  
+
+
+                    },
+
+
+                    columns: [
+                        [{
+                                field: 'getwayMark',
+                                title: '网关号',
+                                width: 150,
+                                editor: 'text'
+                            },
+                            {
+                                field: 'status',
+                                title: '网关状态',
+                                width: 150,
+                                editor: 'text',
+
+                                formatter: function (value, row, index) {
+
+                                    if (row.status == "1") {
+                                        return "手动";
+                                    } else {
+                                        return "自动";
+                                    }
+
+                                }
+
+                            },
+                            {
+                                field: 'memo',
+                                title: '备注',
+                                width: 150,
+                                editor: 'text'
+                            },
+                        ]
+                    ],
+
+
+
+                    pagination: true,
+                    singleSelect: true,
+                    pageSize: 30,
+                    pageList: [1, 2, 30],
+                }) //动态加载单位数据表格  
+
+                $("#AddorUpdate").dialog({
+                    onClose: function () {
+
+                        $("#Getwayid").attr("value", "");
+
+                    }
+
+                });
+
+
+            })
+        </script>
+
+
+        <div id="AddorUpdate" closed='true' class="easyui-dialog" title="请选择要添加权限的用户" style="width:260px;height:150px;" data-options="iconCls:'none',resizable:true,modal:true">
+            <form name="myform">
+
+                <table border="0" style="margin:10px 0;border-collapse:   separate;   border-spacing:   10px;">
+
+                    <tr>
+                        <td>用户姓名</td>
+                        <td>
+                            <select id="Username">
+                                <option value="0">--------请选择-------</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <div style="display:none">
+                    <input id="GetwayId">
+                    <input id="Nodeid">
+                </div>
+
+                <button style="position:absolute;width:50px;height:30px;right:20px" onclick="Submit()">提交</button>
+
+            </form>
+
+
+        </div>
+
+
+
+
+</body>
+
+</html>

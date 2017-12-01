@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuan.dao.GetwayDao">
+
+    <insert id="addGetway" parameterType="com.yuan.entity.Getway">
+        insert into getway(GetwayMark,SpareNode,NodeNum,Status,NowTemper,Humidity,TimeInter,Memo) values (#{getwayMark},#{spareNode},#{nodeNum},#{status},
+        #{temper},#{humidity},#{timeInter},#{memo})
+    </insert>
+    <delete id="deleteGetway">
+        delete from getway where GetwayId=#{getwayId}
+    </delete>
+    <update id="updateGetway" parameterType="Getway">
+        update getway set GetwayMark=#{getwayMark},SpareNode=#{spareNode},NodeNum=#{nodeNum},Status=#{status},NowTemper=#{temper},
+        Humidity=#{humidity},TimeInter=#{timeInter},Memo=#{memo} where GetwayId=#{getwayId}
+    </update>
+    <select id="getGetway" resultType="com.yuan.dto.GetwayResult">
+        select getway.GetwayId,GetwayMark,SpareNode,NodeNum,getway.Status,NowTemper as temper,Humidity,TimeInter,Memo,EndTime,UnitId
+        from getway left join rent on rent.GetwayId=getway.GetwayId
+         and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime
+    </select>
+    <select id="getGetWayByUnitId" resultType="com.yuan.dto.GetwayResult">
+        select rent.GetwayId,GetwayMark,SpareNode,NodeNum,getway.Status,NowTemper,Humidity,TimeInter,Memo,EndTime from getway,rent where rent.GetwayId=getway.GetwayId and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and UnitId=#{unitId}
+    </select>
+    <select id="getGetWayByUserId" resultType="com.yuan.dto.GetwayResult">
+        select rent.GetwayId,GetwayMark,SpareNode,NodeNum,getway.Status,NowTemper,Humidity,TimeInter,Memo,EndTime from getway,UserAuthor,rent
+        where rent.GetwayId=getway.GetwayId and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and UserId=#{userId} and UserAuthor.NodeId=getway.GetwayId
+    </select>
+    <insert id="addGetwayUser">
+        insert into UserAuthor (NodeId,UserId) values (#{nodeId},#{userId})
+    </insert>
+    <delete id="deleteGetwayUser">
+        delete from UserAuthor where NodeId=#{nodeId} and UserId = #{userId}
+    </delete>
+    <select id="getQueryGetway" resultType="com.yuan.dto.QueryGetwayResult">
+        select GetwayId,GetwayMark from getway
+    </select>
+    <select id="getQueryGetwayByUnitId" resultType="com.yuan.dto.QueryGetwayResult">
+        select getway.GetwayId,GetwayMark from getway,rent where rent.GetwayId=getway.GetwayId and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and UnitId=#{unitId}
+    </select>
+    <select id="getQueryGetwayByUserId" resultType="com.yuan.dto.QueryGetwayResult">
+        select getway.GetwayId,GetwayMark from getway,UserAuthor,rent
+        where rent.GetwayId=getway.GetwayId and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and UserId=#{userId} and UserAuthor.NodeId=getway.GetwayMark
+    </select>
+    <select id="getGetwayByGetwayMark" resultType="com.yuan.dto.GetwayResult">
+        select rent.GetwayId,GetwayMark,SpareNode,NodeNum,getway.Status,NowTemper,Humidity,TimeInter,Memo,EndTime,UnitId from getway,rent
+        where GetwayMark=#{getwayMark}
+        <if test="now!=null">and rent.GetwayId=getway.GetwayId  and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime</if>
+    </select>
+    <select id="getUnitByTitle" resultType="com.yuan.dto.GetwayResult">
+        select getway.GetwayId,getway.GetwayMark,getway.Status,getway.Memo,rent.EndTime,Rent.UnitId from getway,rent,unit
+        where rent.GetwayId=getway.GetwayId and getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and rent.unitId=unit.UnitId and unit.Title LIKE #{title}
+    </select>
+</mapper>

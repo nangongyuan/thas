@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="easyui/themes/bootstrap/easyui.css">
+	<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+	<script type="text/javascript" src="easyui/jquery.min.js"></script>
+	<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="index/normalize.css">
+	<link rel="stylesheet" type="text/css" href="index/demo.css">
+	<link rel="stylesheet" type="text/css" href="index/component.css">
+	<!--欢迎动画-->
+
+	<title>温湿度检测系统</title>
+
+	<style>
+		html {
+			height: 100%;
+			background: rgb(121, 195, 230);
+			overflow: hidden;
+		}
+
+		* {
+			margin: 0;
+			padding: 0
+		}
+
+		body {
+			font: 14px "微软雅黑", "FontAwesome", "Arial Narrow", HELVETICA;
+			-webkit-text-size-adjust: 100%;
+		}
+
+		#out1:visited {
+			color: #FFF;
+		}
+
+		a {
+			text-decoration: none;
+			color: #FFF;
+		}
+		/* navMenu */
+
+		.navMenubox {
+			width: 220px;
+			background: rgb(223, 235, 254);
+			/* 整背景颜色 */
+		}
+
+		.navMenu-top {
+			padding: 10px;
+			color: #fff;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1)/* 导航栏下边框颜色 */
+		}
+
+		.navMenu>li {
+			display: block;
+			margin: 0;
+			padding: 0;
+			border: 0px;
+		}
+
+		.navMenu>li>a {
+			display: block;
+			overflow: hidden;
+			padding-left: 0px;
+			line-height: 40px;
+			color: rgb(54, 54, 54);
+			/* 一级菜单文字颜色 */
+			transition: all .3s;
+			position: relative;
+			text-decoration: none;
+			font-size: 15px;
+			border-top: 2px solid rgb(223, 235, 254);
+			/* 表格上边框颜色 */
+			border-bottom: 2px solid rgb(223, 235, 254);
+			/* 表格下边框颜色 */
+		}
+
+		.navMenu>li:nth-of-type(1)>a {
+			border-top: 1px solid transparent;
+		}
+
+		.navMenu>li:last-child>a {
+			border-bottom: 1px solid transparent;
+		}
+
+		.navMenu>li>a>i {
+			font-size: 16px;
+			float: left;
+			font-style: normal;
+			margin: 0 5px;
+		}
+
+		.navMenu li a .arrow:before {
+			display: block;
+			float: right;
+			margin-top: 1px;
+			margin-right: 15px;
+			display: inline;
+			font-size: 16px;
+			font-family: FontAwesome;
+			height: auto;
+			content: "\f105";
+			font-weight: 300;
+			text-shadow: none;
+		}
+
+		.navMenu li a .arrow.open:before {
+			float: right;
+			margin-top: 1px;
+			margin-right: 15px;
+			display: inline;
+			font-family: FontAwesome;
+			height: auto;
+			font-size: 15px;
+			content: "\f107";
+			font-weight: 300;
+			text-shadow: none;
+		}
+
+		.navMenu>li>a.active,
+		.navMenu>li>a:hover {
+			color: rgb(0, 0, 0);
+			/* 一级菜单hover文字颜色 */
+			background: rgb(214, 227, 245);
+			;
+			/* 一级菜单hover背景颜色 */
+		}
+
+		.navMenu>li>ul.sub-menu,
+		.navMenu>li>ul.sub-menu>li>ul.sub-menu {
+			display: none;
+			list-style: none;
+			clear: both;
+			margin: 8px 0px 0px 10px;
+			padding-bottom: 5px;
+		}
+
+		.navMenu>li.active>ul.sub-menu,
+		.navMenu>li>ul.sub-menu>li.active>ul.sub-menu {}
+
+		.navMenu>li>ul.sub-menu li {
+			background: none;
+			margin: 0px;
+			padding: 0px;
+		}
+
+		.navMenu>li>ul.sub-menu li>a {
+			display: block;
+			font-size: 14px;
+			line-height: 36px;
+			padding-left: 20px;
+			color: rgb(147, 153, 160);
+			/*二级菜单文字颜色*/
+			clear: both;
+		}
+
+		.navMenu>li>ul.sub-menu li>a.active,
+		.navMenu>li>ul.sub-menu li>a:hover,
+		.navMenu>li>ul.sub-menu>li.active>a {
+			color: #000;
+			/* 二级菜单hover文字颜色 */
+			background: rgb(223, 235, 254);
+			;
+			/* 二级菜单hover背景颜色 */
+		}
+
+		.icon_1:before {
+			content: "\f0ac";
+		}
+
+		.icon_2:before {
+			content: "\f0ac";
+		}
+
+		.icon_3:before {
+			content: "\f0ac";
+		}
+		a .hover .active .visited{
+			color:#fff;
+		}
+		/*---------------------*/
+	</style>
+
+	<script>
+		var userType = localStorage.getItem("usertype"); //0.系统管理员   1.单位管理员   2.特权管理员    3.普通用户
+		var userName = localStorage.getItem("userName");
+		var userUnitname = localStorage.getItem("userUnitname");
+
+
+
+		function load() {
+			document.getElementById("username").innerHTML = userName;
+			document.getElementById("userunitname").innerHTML = userUnitname;
+
+			if (userType == "0") {
+				$("#Display").hide();
+				$("#Authorized").hide();
+				$("#UserSpManagment").hide();
+			} else if (userType == "3") {
+				$("#Maintenance").hide();
+				$("#Getwayrent").hide();
+				$("#Authorized").hide();
+				$("#unitManagement").hide();
+				$("#userManagement").hide();
+				$("#UserSpManagement").hide();
+				$("#BxInfManagent").hide();
+			} else if(userType =="1"){
+				$("#Getwayrent").hide();
+			}
+
+
+		}
+
+		function Out() {
+			$.ajax({
+				url: '/user/exit',
+				xhrFields: {
+					withCredentials: true
+				},
+				crossDomain: true,
+				success: function (json) {
+					userType = '0';
+					alert("退出成功");
+					location.href = "index.html";
+				},
+				error: function () {}
+			});
+
+		}
+	</script>
+</head>
+
+<body class="easyui-layout" onload="load()" style="">
+
+
+	<div data-options="region:'north'" style="height:60px;background:rgb(51,122,183);">
+
+		<div align="left" style="left:20px;position:absolute;top:10px">
+			<h2>
+				<font color=#ffffff>温湿度检测系统&nbsp;&nbsp;&nbsp;</font>
+			</h2>
+		</div>
+
+		<div style="position:absolute;right:150px;top:30%;">
+			<font size=3>
+				<a href="#" id="userunitname"></a>
+			</font>
+		</div>
+
+		<div style="position:absolute;right:75px;top:30%;">
+			<font size=3>
+				<a href="#" id="username"></a>
+			</font>
+		</div>
+
+		<div style="position:absolute;right:15px;top:30%;">
+			<font size=3>
+				<a href="#" onclick="Out()" id="out1">退出</a>
+			</font>
+		</div>
+	</div>
+
+	<div data-options="region:'center'">
+		<div class="easyui-layout" data-options="fit:true">
+
+			<div data-options="region:'west'" style="width:205px;height:auto;">
+				<div id="List" class="easyui-accordion" style="width:200px;height:99%;">
+					<div class="navMenubox">
+						<div id="slimtest1">
+							<div class="navMenu-top">
+								<div id="mini" style="">
+									<font size="2px" color="#000">
+										导航栏
+									</font>
+								</div>
+							</div>
+							<ul class="navMenu">
+								<li>
+									<a href="javascript:;" class="afinve">
+										<span class="">&nbsp;&nbsp;数据查询</span>
+										<span class="arrow"></span>
+									</a>
+									<ul class="sub-menu">
+										<li>
+											<a href="javascript:;">
+												<span>
+													<a href="#" onclick="addTab('节点历史温/湿度查询','other/InformationSelect/PointHistoryWS.html')">节点历史温/湿度查询</a>
+												</span>
+											</a>
+										</li>
+										<li>
+											<a href="javascript:;">
+												<span>
+													<a href="#" onclick="addTab('节点历史温度曲线统计','other/InformationSelect/PointWDline.html')">节点历史温度曲线统计</a>
+												</span>
+											</a>
+										</li>
+										<li>
+											<a href="javascript:;">
+												<span>
+													<a href="#" onclick="addTab('节点历史湿度曲线统计','other/InformationSelect/PointSDline.html')">节点历史湿度曲线统计</a>
+												</span>
+											</a>
+										</li>
+									</ul>
+								</li>
+
+								<li>
+									<a href="javascript:;" class="afinve">
+										<span class="nav-text">&nbsp;&nbsp;网关节点管理</span>
+										<span class="arrow"></span>
+									</a>
+									<ul class="sub-menu">
+										<div id="Maintenance">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('网关/节点信息维护','other/GatewaynodeManagement/Maintenance.html')">网关/节点信息维护</a>
+													</span>
+												</a>
+											</li>
+										</div>
+										<div id="Display">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('实时信息显示','/other/GatewaynodeManagement/Display.html')">实时信息显示</a>
+													</span>
+												</a>
+											</li>
+										</div>
+										<div id="Authorized">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('网关授权管理','other/GatewaynodeManagement/Authorized.html')">网关授权管理</a>
+													</span>
+												</a>
+											</li>
+										</div>
+										<div id="Getwayrent">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('网关租用管理','other/GatewaynodeManagement/Getwayrent.html')">网关租用管理</a>
+													</span>
+												</a>
+											</li>
+										</div>
+									</ul>
+								</li>
+								<li>
+									<a href="javascript:;" class="afinve">
+										<span class="nav-text">&nbsp;&nbsp;系统管理</span>
+										<span class="arrow"></span>
+									</a>
+									<ul class="sub-menu">
+										<div id="unitManagement">
+											<li>
+												<a href="javascript:;" class="afinve">
+													<span>
+														<a href="#" onclick="addTab('单位管理','other/Management/unitManagement.html')">单位管理</a>
+													</span>
+												</a>
+											</li>
+										</div>
+										<div id="userManagement">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('用户管理','other/Management/userManagement.html')">用户管理</a>
+													</span>
+												</a>
+											</li>
+										</div>
+										<div id="BxInfManagent">
+											<li>
+												<a href="javascript:;">
+													<span>
+														<a href="#" onclick="addTab('报修信息管理','other/Management/BxInfManagent.html')">报修信息管理</a>
+													</span>
+												</a>
+											</li>
+										</div>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<script>
+				$(function () {
+					// nav收缩展开
+					$('.navMenu li a').on('click', function () {
+						var parent = $(this).parent().parent(); //获取当前页签的父级的父级
+						var labeul = $(this).parent("li").find(">ul")
+						if ($(this).parent().hasClass('open') == false) {
+							//展开未展开
+							parent.find('ul').slideUp(300);
+							parent.find("li").removeClass("open")
+							parent.find('li a').removeClass("active").find(".arrow").removeClass("open")
+							$(this).parent("li").addClass("open").find(labeul).slideDown(300);
+							$(this).addClass("active").find(".arrow").addClass("open")
+						} else {
+							$(this).parent("li").removeClass("open").find(labeul).slideUp(300);
+							if ($(this).parent().find("ul").length > 0) {
+								$(this).removeClass("active").find(".arrow").removeClass("open")
+							} else {
+								$(this).addClass("active")
+							}
+						}
+
+					});
+				});
+
+				function addTab(title, url) {
+
+					if (userType == -1) {
+
+						alert("请登录！！");
+
+					} else {
+
+
+						var x = "all";
+						if (title == "节点历史温/湿度查询" || title == "节点历史温度曲线统计") x = 'all';
+						if (title == "网关/节点信息维护") x = '系统管理员单位管理员特权单位';
+						if (title == "节点控制" || title == "实时信息显示") x = '单位管理员特权单位操作用户';
+						if (title == "网关授权管理" || title == "用户审批管理") x = '单位管理员';
+						if (title == "用户管理" || title == "报修信息管理" || title == "单位管理") x = '系统管理员单位管理员';
+						if (title == "网关租用管理") x = '系统管理员';
+
+						if (x == "all") {
+
+							if ($('#tt').tabs('exists', title)) {
+								$('#tt').tabs('select', title);
+							} else {
+								var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+									'" style="width:100%;height:100%;"></iframe>';
+								$('#tt').tabs('add', {
+									title: title,
+									content: content,
+									closable: true
+								});
+							}
+						} else if (x == '系统管理员单位管理员特权单位') {
+							if (userType == '0' || userType == '1' || userType == '2') {
+								if ($('#tt').tabs('exists', title)) {
+									$('#tt').tabs('select', title);
+								} else {
+									var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+										'" style="width:100%;height:100%;"></iframe>';
+									$('#tt').tabs('add', {
+										title: title,
+										content: content,
+										closable: true
+									});
+								}
+							} else {
+								alert("您的权限不足");
+							}
+						} else if (x == '单位管理员') {
+							if (userType == '1') {
+								if ($('#tt').tabs('exists', title)) {
+									$('#tt').tabs('select', title);
+								} else {
+									var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+										'" style="width:100%;height:100%;"></iframe>';
+									$('#tt').tabs('add', {
+										title: title,
+										content: content,
+										closable: true
+									});
+								}
+							} else {
+								alert("您的权限不足");
+							}
+						} else if (x == '系统管理员单位管理员') {
+							if (userType == '0' || userType == '1') {
+								if ($('#tt').tabs('exists', title)) {
+									$('#tt').tabs('select', title);
+								} else {
+									var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+										'" style="width:100%;height:100%;"></iframe>';
+									$('#tt').tabs('add', {
+										title: title,
+										content: content,
+										closable: true
+									});
+								}
+							} else {
+								alert("您的权限不足");
+							}
+						} else if (x == '单位管理员特权单位操作用户') {
+							if (userType == '1' || userType == '2' || userType == '3') {
+								if ($('#tt').tabs('exists', title)) {
+									$('#tt').tabs('select', title);
+								} else {
+									var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+										'" style="width:100%;height:100%;"></iframe>';
+									$('#tt').tabs('add', {
+										title: title,
+										content: content,
+										closable: true
+									});
+								}
+							} else {
+								alert("您的权限不足");
+							}
+						} else if (x == '系统管理员') {
+							if (userType == '0') {
+								if ($('#tt').tabs('exists', title)) {
+									$('#tt').tabs('select', title);
+								} else {
+									var content = '<iframe scrolling="auto" frameborder="0"  src="' + url +
+										'" style="width:100%;height:100%;"></iframe>';
+									$('#tt').tabs('add', {
+										title: title,
+										content: content,
+										closable: true
+									});
+								}
+							} else {
+								alert("您的权限不足");
+							}
+						}
+
+
+					} //0.系统管理员   1.单位管理员   2.特权管理员    3.普通用户
+				}
+			</script>
+
+
+			<div data-options="region:'center'" style="width:auto;height:99%;overflow-x:hidden;overflow-y:hidden;">
+				<div id="tt" class="easyui-tabs" style="width:100%;height:98%;overflow-y:hidden;">
+					<div title="欢迎使用" style="padding:0px;overflow-y:hidden;overflow-x:hidden" id="indexx">
+						<div class="container demo-1">
+							<div class="content">
+								<div id="large-header" class="large-header">
+									<canvas id="demo-canvas" width="100%" height="100%"></canvas>
+								</div>
+
+							</div>
+						</div>
+						<script src="index/TweenLite.min.js"></script>
+						<script src="index/EasePack.min.js"></script>
+						<script src="index/rAF.js"></script>
+						<script src="index/demo-1.js"></script>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+
+
+
+</html>

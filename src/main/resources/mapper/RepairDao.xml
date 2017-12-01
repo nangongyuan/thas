@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuan.dao.RepairDao">
+    <select id="getRepairByRepairId" resultType="com.yuan.entity.Repair">
+        select RepairId,NodeMark,FaultDesc,Phone,Person,Address,FaultTime,Status from repair where RepairId=#{repairId}
+    </select>
+
+    <select id="getShowRepair" resultType="com.yuan.entity.Repair">
+        select RepairId,NodeMark,FaultDesc,Phone,Person,Address,FaultTime,Status from Repair
+    </select>
+
+    <select id="getRepairByUnit" resultType="com.yuan.entity.Repair">
+        select RepairId,repair.NodeMark,FaultDesc,Phone,Person,Address,FaultTime,repair.Status from repair,node,rent where
+        rent.UnitId=#{unit} and  getdate()>=StartTime and getdate()<![CDATA[<=]]>EndTime and rent.GetwayId=node.GetwayId and node.NodeMark=repair.NodeMark
+    </select>
+
+
+    <insert id="addRepair" parameterType="com.yuan.entity.Repair">
+        insert into repair(NodeMark,FaultDesc,Phone,Person,Address,FaultTime,Status) values (#{nodeMark},#{faultDesc},#{phone},#{person},
+        #{address},#{faultTime},#{status})
+    </insert>
+    <delete id="deleteRepair">
+        delete from repair where RepairId=#{repairId}
+    </delete>
+    <update id="updateRepair" parameterType="Repair">
+        update repair set NodeMark=#{nodeMark},FaultDesc=#{faultDesc},Phone=#{phone},Address=#{address},FaultTime=#{faultTime},
+        Status=#{status} where RepairId=#{repairId}
+    </update>
+</mapper>

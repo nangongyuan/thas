@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../easyui/themes/icon.css">
+
+    <script type="text/javascript" src="../../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../easyui/locale/easyui-lang-zh_CN.js"></script>
+    <title>网关/节点信息维护</title>
+    <style>
+        #tbunit {
+            position: absolute;
+            height: auto;
+        }
+
+        #fm {
+            margin: 0;
+            padding: 10px 30px;
+        }
+    </style>
+    <script>
+        function load() {
+
+            var json = new Array();
+            $.ajax({
+                type: "get",
+                url: '/query/getQueryGetway',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (json) {
+                    var select = document.getElementById('Select');
+
+                    var a = 0;
+                    var j = 0;
+                    var b = 0;
+                    for (var i = 0; i < json.length; i++) {
+                        a = i + j + 1;
+
+                        var strGetway = json[i].getwayMark + "(网关)";
+                        select.add(new Option(strGetway, json[i].getwayMark));
+
+                        for (j = 1; j < json[i].queryNodeResultList.length + 1; j++) {
+                            b = 3 * i + j + 1;
+                            str = "......" + json[i].queryNodeResultList[j - 1].nodeMark + "(节点)";
+                            select.add(new Option(str, json[i].getwayMark+"/"+json[i].queryNodeResultList[j - 1].nodeMark+"/"+"shn"));
+                        }
+                        j--;
+                    }
+                },
+                error: function () {}
+            });
+        }
+    </script>
+</head>
+
+<body onload="load()" style="overflow-x:hidden;overflow-y:hidden;">
+    <div id="tbunit" style="width:99%;height:98%">
+        <table id="seachWS"></table>
+
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var datagrid1 = $('#seachWS').datagrid({
+                url: '/query/temperHumidity',
+                title: '节点历史温湿度显示及查询',
+                method: 'get',
+                fit: true,
+                fitColumns: true,
+                toolbar: '#toolbar',
+                columns: [
+                    [{
+                            field: 'nodeMark',
+                            title: '节点编号',
+                            width: 150
+                        },
+                        {
+                            field: 'getWay',
+                            title: '上报类型',
+                            width: 150
+                        },
+                        {
+                            field: 'reportTime',
+                            title: '上报时间',
+                            width: 150,
+
+                           
+
+                        },
+                        {
+                            field: 'temper',
+                            title: '节点温度',
+                            width: 150
+                        },
+                        {
+                            field: 'humidity',
+                            title: '节点湿度',
+                            width: 150
+                        },
+                    ]
+                ],
+
+
+
+                pagination: true,
+                singleSelect: true,
+                pageSize: 30,
+                pageList: [1, 2, 30],
+            }) //动态加载单位数据表格  
+
+
+
+
+        })
+
+        function SearchWS() {
+            var startTime = document.getElementById("starttime").value
+            var endTime = document.getElementById("endtime").value
+            var select = document.getElementById('Select').value;
+            var result = select.split("/");
+            for(var i=0;i<result.length;i++){
+            
+                if(result[i]=="shn"){
+                    select=result[1];
+                }else{
+                    select=result[0];
+                }
+            
+            }
+            $('#seachWS').datagrid({
+                url: "/query/temperHumidity",
+                queryParams: {
+                    nodeMark: select,
+                    startTime: startTime,
+                    endTime: endTime
+                },
+                method: "get",
+                columns: [
+                    [{
+                            field: 'nodeMark',
+                            title: '节点编号',
+                            width: 150
+                        },
+                        {
+                            field: 'getWay',
+                            title: '上报类型',
+                            width: 150
+                        },
+                        {
+                            field: 'reportTime',
+                            title: '上报时间',
+                            width: 150,
+
+                             formatter: function (value, row, index) {
+                                var time = new Date(row.reportTime);
+                                var h=time.getHours(); //获取小时
+   								var m=time.getMinutes(); //获取分钟
+  								var s=time.getSeconds(); //获取秒
+
+								commonTime = time.toLocaleDateString();
+                                commonTime = commonTime+"  "+h+":"+m+":"+s;
+                                return commonTime;
+
+                            }
+
+                        },
+                        {
+                            field: 'temper',
+                            title: '节点温度',
+                            width: 150
+                        },
+                        {
+                            field: 'humidity',
+                            title: '节点湿度',
+                            width: 150
+                        },
+                    ]
+                ],
+            });
+        }
+    </script>
+
+    <div id="toolbar">
+        <div>
+            查询节点：
+
+
+
+            <select id="Select" style="width:150px">
+                <option>请选择</option>
+            </select>
+            &nbsp;&nbsp;开始时间：
+            <input id="starttime" type="text" class="easyui-datebox" required="required"></input>
+            &nbsp;&nbsp;结束时间：
+            <input id="endtime" type="text" class="easyui-datebox" required="required"></input>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="SearchWS()">查询</a>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.dao.UnitDao">
+    <select id="getUnit" resultType="com.yuan.entity.Unit">
+        select UnitId,Title,Address,Person,Phone,Email,UnitType,Memo from unit where 1!=2
+        <if test="map.unitId!=null"> and UnitId=#{map.unitId}</if>
+        <if test="map.unitTitle!=null"> and Title=#{map.unitTitle}</if>
+        <if test="map.unitType!=null"> and UnitType!=#{map.unitType}</if>
+    </select>
+    <insert id="addUnit" parameterType="com.yuan.entity.Unit">
+        insert into unit(Title,Address,Person,Phone,Email,UnitType,Memo) values (#{title},#{address},#{person},#{phone},
+        #{email},#{unitType},#{memo})
+    </insert>
+    <delete id="deleteUnit">
+        delete from unit where UnitId=#{unitId}
+    </delete>
+    <update id="updateUnit" parameterType="Unit">
+        update unit set Title=#{title},Address=#{address},Person=#{person},Phone=#{phone},Email=#{email},
+        UnitType=#{unitType},Memo=#{memo} where UnitId=#{unitId}
+    </update>
+</mapper>
